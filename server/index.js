@@ -1,0 +1,72 @@
+import "dotenv/config.js";
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import compression from "compression";
+import cookieParser from "cookie-parser";
+
+import { generalLimiter } from "./src/utils/rate-limiter.js";
+import { globalErrorHandler, notFoundHandler } from "./src/utils/error.js";
+import authRouter from "./src/routes/auth.router.js";
+import emailRouter from "./src/routes/email.router.js";
+import userRouter from "./src/routes/user.router.js";
+
+const app = express();
+const PORT = process.env.PORT || 8000;
+const API_VERSION = process.env.API_VERSION || "/api/v1";
+
+// Environment variable checks
+if (process.env.NODE_ENV === "production") {
+    if (!process.env.JWT_ACCESS_SECRET) {
+        throw new Error("JWT_ACCESS_SECRET is required");
+    }
+
+    if (!process.env.JWT_REFRESH_SECRET) {
+        throw new Error("JWT_REFRESH_SECRET is required");
+    }
+}
+
+// trust proxy
+app.set("trust proxy", 1);
+
+// security headers
+app.use(helmet());
+
+// compression
+app.use(compression());
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use(
+    cors({
+        origin:
+            process.env.NODE_ENV === "production"
+                ? process.env.CORS_ORIGIN : "http://localhost:3000",
+        credentials: true,
+    })
+);
+
+// rate limiting
+app.use(generalLimiter);
+
+// health check
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "UP",
+        timestamp: new Date().toISOString(),
+    });
+});
+
+// Routes
+app.use(`${API_VERSION}/auth`, authRouter);
+app.use(`${API_VERSION}/email`, emailRouter);
+app.use(`${API_VERSION}/users`, userRouter);
+
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});

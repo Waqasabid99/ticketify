@@ -1,0 +1,12 @@
+User Management
+Cinema/Theater Management
+Screen Management
+Movie Management
+Show Management
+Seat Management
+Booking System
+Payments
+Coupons/Promotions
+Reports & Analytics
+Notifications
+Audit Logs

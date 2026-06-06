@@ -1,0 +1,536 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+  CUSTOMER
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum HallType {
+  STANDARD
+  VIP
+  IMAX
+  THREE_D
+}
+
+enum SeatType {
+  REGULAR
+  PREMIUM
+  VIP
+  RECLINER
+  COUPLE
+}
+
+enum SeatStatus {
+  AVAILABLE
+  BLOCKED
+  MAINTENANCE
+}
+
+enum MovieStatus {
+  COMING_SOON
+  NOW_SHOWING
+  ARCHIVED
+}
+
+enum PricingType {
+  FIXED
+  PERCENTAGE
+}
+
+enum BookingStatus {
+  PENDING
+  RESERVED
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  REFUNDED
+}
+
+enum ShowSeatStatus {
+  AVAILABLE
+  RESERVED
+  BOOKED
+  BLOCKED
+}
+
+enum TicketStatus {
+  ACTIVE
+  USED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum ShowStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum CouponType {
+  FIXED
+  PERCENTAGE
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+}
+
+model User {
+  id String @id @default(uuid())
+
+  firstName String
+  lastName  String?
+
+  email String  @unique @db.VarChar(50)
+  phone String? @unique @db.VarChar(13)
+
+  passwordHash String
+
+  role   UserRole
+  status UserStatus @default(PENDING)
+
+  emailVerified Boolean @default(false)
+
+  emailVerificationToken  String?   @unique
+  emailVerificationExpiry DateTime?
+
+  passwordResetToken  String?   @unique
+  passwordResetExpiry DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  bookings Booking[]
+
+  createdShows Show[] @relation("ShowCreator")
+
+  auditLogs     AuditLog[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String @id @default(cuid())
+  tokenHash String @unique
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+
+  ipHash    String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Permission {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  role         UserRole
+  permissionId String
+
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([role, permissionId])
+}
+
+model Cinema {
+  id String @id @default(uuid())
+
+  name    String
+  address String
+
+  city    String
+  country String
+
+  phone String?
+  email String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  halls Hall[]
+}
+
+model Hall {
+  id String @id @default(uuid())
+
+  cinemaId String
+
+  name String
+
+  type HallType
+
+  capacity Int
+
+  isActive Boolean @default(true)
+
+  cinema Cinema @relation(fields: [cinemaId], references: [id])
+
+  seats Seat[]
+
+  shows Show[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Seat {
+  id String @id @default(uuid())
+
+  hallId String
+
+  rowLabel   String
+  seatNumber Int
+
+  seatType SeatType
+
+  status SeatStatus @default(AVAILABLE)
+
+  hall Hall @relation(fields: [hallId], references: [id])
+
+  bookingSeats BookingSeat[]
+  showSeats    ShowSeat[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([hallId, rowLabel, seatNumber])
+}
+
+model Movie {
+  id String @id @default(uuid())
+
+  title String
+
+  description String?
+
+  durationMinutes Int
+
+  releaseDate DateTime?
+
+  language String
+
+  ageRestriction Int?
+
+  trailerUrl String?
+
+  posterUrl String?
+
+  bannerUrl String?
+
+  status MovieStatus
+
+  genres MovieGenre[]
+
+  shows Show[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Genre {
+  id String @id @default(uuid())
+
+  name String @unique
+
+  movies MovieGenre[]
+}
+
+model MovieGenre {
+  movieId String
+  genreId String
+
+  movie Movie @relation(fields: [movieId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@id([movieId, genreId])
+}
+
+model Show {
+  id String @id @default(uuid())
+
+  movieId String
+
+  hallId String
+
+  startTime DateTime
+
+  endTime DateTime
+
+  cleaningMinutes Int @default(15)
+
+  status ShowStatus @default(SCHEDULED)
+
+  createdById String
+
+  movie Movie @relation(fields: [movieId], references: [id])
+
+  hall Hall @relation(fields: [hallId], references: [id])
+
+  createdBy User @relation("ShowCreator", fields: [createdById], references: [id])
+
+  bookings Booking[]
+
+  pricingRules PricingRule[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+  showSeats ShowSeat[]
+
+  @@index([hallId, startTime])
+}
+
+model PricingRule {
+  id String @id @default(uuid())
+
+  showId String
+
+  seatType SeatType?
+
+  amount Decimal @db.Decimal(10, 2)
+
+  type PricingType
+
+  show Show @relation(fields: [showId], references: [id])
+}
+
+model Booking {
+  id String @id @default(uuid())
+
+  bookingNumber String @unique
+
+  userId String
+
+  showId String
+
+  couponId String?
+
+  totalAmount Decimal @db.Decimal(10, 2)
+
+  discountAmount Decimal @db.Decimal(10, 2)
+
+  finalAmount Decimal @db.Decimal(10, 2)
+
+  status BookingStatus
+
+  expiresAt DateTime?
+
+  bookedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  show Show @relation(fields: [showId], references: [id])
+
+  coupon Coupon? @relation(fields: [couponId], references: [id])
+
+  seats BookingSeat[]
+
+  tickets Ticket[]
+
+  payments Payment[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  showSeats ShowSeat[]
+}
+
+model BookingSeat {
+  id String @id @default(uuid())
+
+  bookingId String
+
+  seatId String
+
+  price Decimal @db.Decimal(10, 2)
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  seat    Seat     @relation(fields: [seatId], references: [id])
+  tickets Ticket[]
+
+  @@unique([bookingId, seatId])
+}
+
+model ShowSeat {
+  showId        String
+  seatId        String
+  show          Show           @relation(fields: [showId], references: [id])
+  seat          Seat           @relation(fields: [seatId], references: [id])
+  status        ShowSeatStatus
+  reservedUntil DateTime?
+  bookingId     String?
+  booking       Booking?       @relation(fields: [bookingId], references: [id])
+
+  @@id([showId, seatId])
+}
+
+model Ticket {
+  id            String      @id @default(uuid())
+  bookingSeatId String
+  bookingSeat   BookingSeat @relation(fields: [bookingSeatId], references: [id])
+
+  bookingId String
+
+  qrCode String @unique
+
+  status TicketStatus @default(ACTIVE)
+
+  checkedInAt DateTime?
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  bookingId String
+
+  provider String
+
+  transactionId String?
+
+  amount Decimal @db.Decimal(10, 2)
+
+  status PaymentStatus
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  createdAt DateTime @default(now())
+  refunds   Refund[]
+}
+
+model Refund {
+  id        String  @id @default(uuid())
+  paymentId String
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  bookingId String
+
+  amount Decimal @db.Decimal(10, 2)
+
+  reason String?
+
+  status RefundStatus
+
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id String @id @default(uuid())
+
+  code String @unique
+
+  type CouponType
+
+  value Decimal @db.Decimal(10, 2)
+
+  maxUses Int?
+
+  usedCount Int @default(0)
+
+  startsAt DateTime?
+
+  expiresAt DateTime?
+
+  isActive Boolean @default(true)
+
+  bookings Booking[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+
+  type NotificationType
+
+  subject String?
+
+  message String
+
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  userId String
+
+  action String
+
+  entity String
+
+  entityId String
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  key String @id
+
+  value Json
+}

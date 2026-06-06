@@ -1,0 +1,45 @@
+{
+  "name": "ticketify",
+  "version": "1.0.0",
+  "description": "A complete ticket booking system ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "seed:permissions": "node src/seed/seed.permissions.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Waqasabid99/ticketify.git"
+  },
+  "keywords": [
+    "ticket-booking",
+    "movies"
+  ],
+  "author": "Waqas Ali Abid",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Waqasabid99/ticketify/issues"
+  },
+  "homepage": "https://github.com/Waqasabid99/ticketify#readme",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@react-email/render": "^2.0.8",
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "ms": "^2.1.3",
+    "nodemailer": "^8.0.10",
+    "nodemon": "^3.1.14",
+    "prisma": "^7.8.0"
+  }
+}
