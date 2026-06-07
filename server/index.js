@@ -12,6 +12,8 @@ import emailRouter from "./src/routes/email.router.js";
 import userRouter from "./src/routes/user.router.js";
 import cinemaRouter from "./src/routes/cinema.router.js";
 import screenRouter from "./src/routes/screen.router.js";
+import movieRouter from "./src/routes/movie.router.js";
+import genreRouter from "./src/routes/genre.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -67,6 +69,8 @@ app.use(`${API_VERSION}/email`, emailRouter);
 app.use(`${API_VERSION}/users`, userRouter);
 app.use(`${API_VERSION}/cinemas`, cinemaRouter);
 app.use(`${API_VERSION}/screens`, screenRouter);
+app.use(`${API_VERSION}/movies`, movieRouter);
+app.use(`${API_VERSION}/genres`, genreRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

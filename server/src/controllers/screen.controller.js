@@ -38,7 +38,7 @@ export const createScreen = asyncHandler(async (req, res) => {
     });
     if (!cinema) throw ApiError.notFound("Cinema not found");
 
-    const slug = await generateUniqueSlug(name, prisma.screen);
+    const slug = await generateUniqueSlug(name, prisma.screen, null, null);
     const totalCapacity = rowLabels.length * numSeatsPerRow;
 
     const screen = await prisma.$transaction(async (tx) => {
@@ -134,7 +134,7 @@ export const updateScreen = asyncHandler(async (req, res) => {
     if (!existingScreen) throw ApiError.notFound("Screen not found");
     const updateData = {};
     if (name) {
-        const slug = await generateUniqueSlug(name, prisma.screen, screenId);
+        const slug = await generateUniqueSlug(name, prisma.screen, screenId, null);
         updateData.name = name;
         updateData.slug = slug;
     }

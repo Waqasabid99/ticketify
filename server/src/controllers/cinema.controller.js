@@ -8,7 +8,7 @@ export const createCinema = asyncHandler(async (req, res) => {
 
     if (!name || !address) throw ApiError.badRequest("Name and Address is required");
 
-    const slug = await generateUniqueSlug(name, prisma.cinema);
+    const slug = await generateUniqueSlug(name, prisma.cinema, null, null);
 
     const cinema = await prisma.cinema.create({
         data: {
@@ -168,7 +168,7 @@ export const updateCinema = asyncHandler(async (req, res) => {
     const updateData = {};
     if (name) {
         updateData.name = name;
-        const slug = await generateUniqueSlug(name, prisma.cinema, cinemaId);
+        const slug = await generateUniqueSlug(name, prisma.cinema, cinemaId, null, null);
         updateData.slug = slug;
     }
     if (address) updateData.address = address;

@@ -281,6 +281,7 @@ model Movie {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+  casts     Cast[]
 }
 
 model Genre {
@@ -288,6 +289,10 @@ model Genre {
 
   name String @unique
   slug String @unique
+
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   movies MovieGenre[]
 }
@@ -300,6 +305,19 @@ model MovieGenre {
   genre Genre @relation(fields: [genreId], references: [id])
 
   @@id([movieId, genreId])
+}
+
+model Cast {
+  id        String   @id @default(uuid())
+  name      String
+  imageUrl  String?
+  role      String
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([movieId, name])
 }
 
 model Show {

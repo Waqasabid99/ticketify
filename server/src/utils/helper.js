@@ -184,17 +184,21 @@ export const generateSlug = (text) =>
         trim: true,
     });
 
-export const generateUniqueSlug = async (name, prismaModel, excludeId = null) => {
+export const generateUniqueSlug = async (name, prismaModel, excludeId = null, deletedAt) => {
     if (!name) throw ApiError.badRequest("Name is required");
 
     const baseSlug = generateSlug(name);
 
     const where = {
-        deletedAt: null,
         slug: {
             startsWith: baseSlug,
         },
     };
+
+    if (deletedAt !== undefined) {
+        where.deletedAt = deletedAt;
+    }
+
     if (excludeId) where.id = { not: excludeId };
 
     const existing = await prismaModel.findMany({
