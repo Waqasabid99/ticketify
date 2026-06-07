@@ -102,6 +102,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
         totalUsers,
         page,
         limit,
+        totalPages: Math.ceil(totalUsers / pageSize)
     });
 });
 
@@ -164,7 +165,8 @@ export const createUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUser = asyncHandler(async (req, res) => {
-    const { userId, firstName, lastName, email, phone, verified, verificationToken, verificationExpiry } = req.body;
+    const { userId } = req.params;
+    const { firstName, lastName, email, phone, verified, verificationToken, verificationExpiry } = req.body;
 
     if (!userId) throw ApiError.badRequest("User ID is required");
 
@@ -202,7 +204,8 @@ export const updateUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUserRole = asyncHandler(async (req, res) => {
-    const { userId, role } = req.body;
+    const { userId } = req.params;
+    const { role } = req.body;
 
     if (!userId) throw ApiError.badRequest("User ID is required");
     if (!role) throw ApiError.badRequest("Role is required");
@@ -240,7 +243,8 @@ export const updateUserRole = asyncHandler(async (req, res) => {
 });
 
 export const updateUserStatus = asyncHandler(async (req, res) => {
-    const { userId, status } = req.body;
+    const { userId } = req.params;
+    const { status } = req.body;
 
     if (!userId) throw ApiError.badRequest("User ID is required");
     if (!status) throw ApiError.badRequest("Status is required");

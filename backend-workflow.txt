@@ -1,12 +1,91 @@
-User Management
-Cinema/Theater Management
-Screen Management
-Movie Management
-Show Management
-Seat Management
-Booking System
-Payments
-Coupons/Promotions
+1. User Management (Basic)
+    - Sign Up, Sign In, Sign Out
+    - Forgot Password, Reset Password
+    - Change Password
+    - View/Edit Profile
+
+    Users can have these roles:
+    - OWNER (Admin)
+    - MANAGER (Employee/Owner of cinema)
+    - STAFF
+    - CUSTOMER
+
+2. Cinema/Theater Management (Only for OWNER / MANAGER)
+    - Add new Cinema/Theater
+    - Update Cinema/Theater details
+    - Delete Cinema/Theater
+    - View all Cinemas
+    - Upload Cinema Logo (Optional)
+
+3. Screen Management (Only for ADMIN / MANAGER)
+    - Add new Screen for a Cinema
+    - Update Screen details
+    - Delete Screen
+    - View all Screens in a Cinema
+
+4. Movie Management (Only for ADMIN / MANAGER)
+    - Add new Movie
+    - Update Movie details
+    - Delete Movie
+    - Upload Movie Poster (Optional)
+    - Add Movie Trailer URL (Optional)
+    - Manage Movie Cast & Crew (Optional)
+
+5. Show Management (Only for ADMIN / MANAGER)
+    - Schedule a Movie in a Screen on a specific date & time
+    - Set Ticket Prices for the Show (or use default Screen prices)
+    - Update Show details
+    - Delete Show
+    - View all Shows
+    - View Shows for a specific Movie or Cinema
+
+6. Seat Management (Only for ADMIN / MANAGER)
+    - Define Seat Layout for each Screen
+    - Add Rows and Seats (e.g., Row A, B, C...)
+    - Mark Seats as Available/Booked
+    - Price per Seat (per Screen or per Show)
+
+7. Booking System (For CUSTOMER)
+    - View all Movies
+    - View Movies by date or cinema
+    - Select Movie → Select Cinema → Select Screen → Select Date → Select Time
+    - View Seat Layout
+    - Select Seats
+    - Calculate Total Price
+    - Proceed to Payment
+    - Receive Booking Confirmation (with QR Code)
+    - View Ticket Details
+    - Cancel Ticket (with Refund Policy)
+
+8. Payments (Only for CUSTOMER)
+    - Integrate with Stripe
+    - Process Credit/Debit Cards
+    - Payment Success → Mark Booking as COMPLETED
+    - Payment Failure → Mark Booking as PENDING/FAILED
+
+9. Coupons/Promotions (Only for ADMIN / MANAGER)
+    - Create Coupons
+    - Set Discount Percentage or Fixed Amount
+    - Set Expiry Date
+    - Apply Coupon during Booking
+
+10. Reports & Analytics (Only for ADMIN / MANAGER)
+    - Sales Report (Daily, Weekly, Monthly)
+    - Ticket Sales by Cinema
+    - Ticket Sales by Movie
+    - Occupancy Rate
+    - Revenue Report
+
+11. Notifications
+    - Booking Confirmation (Email / SMS / In-app)
+    - Payment Success/Failure
+    - Ticket Cancellation
+    - Movie Updates
+
+12. Audit Logs
+    - Track all Admin/Manager Actions
+    - Track User Sign Ups
+    - Track Booking History
 Reports & Analytics
 Notifications
 Audit Logs

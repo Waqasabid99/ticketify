@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { ApiError } from "./error.js";
 import ms from "ms";
+import slugify from "slugify";
 
 export const JWT_EXPIRES_IN = process.env.NODE_ENV === "production"
     ? (process.env.JWT_EXPIRES_IN || "24h")
@@ -175,3 +176,45 @@ export const generatePasswordResetToken = (userId) => {
         JWT_PASSWORD_RESET_SECRET,
         { expiresIn: JWT_PASSWORD_RESET_EXPIRES_IN });
 }
+
+export const generateSlug = (text) =>
+    slugify(text, {
+        lower: true,
+        strict: true,
+        trim: true,
+    });
+
+export const generateUniqueSlug = async (name, prismaModel, excludeId = null) => {
+    if (!name) throw ApiError.badRequest("Name is required");
+
+    const baseSlug = generateSlug(name);
+
+    const where = {
+        deletedAt: null,
+        slug: {
+            startsWith: baseSlug,
+        },
+    };
+    if (excludeId) where.id = { not: excludeId };
+
+    const existing = await prismaModel.findMany({
+        where,
+        select: {
+            slug: true,
+        },
+    });
+
+    const slugs = new Set(existing.map((item) => item.slug));
+
+    if (!slugs.has(baseSlug)) {
+        return baseSlug;
+    }
+
+    let counter = 1;
+
+    while (slugs.has(`${baseSlug}-${counter}`)) {
+        counter++;
+    }
+
+    return `${baseSlug}-${counter}`;
+};

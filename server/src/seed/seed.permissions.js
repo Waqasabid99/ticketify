@@ -31,18 +31,18 @@ const permissions = [
     { name: "cinema:delete", description: "Soft-delete a cinema" },
     { name: "cinema:toggle-active", description: "Activate or deactivate a cinema" },
 
-    // ── HALL ──────────────────────────────────
-    { name: "hall:list", description: "List halls in a cinema" },
-    { name: "hall:read", description: "View hall details" },
-    { name: "hall:create", description: "Create a new hall" },
-    { name: "hall:update", description: "Update hall details" },
-    { name: "hall:delete", description: "Soft-delete a hall" },
-    { name: "hall:toggle-active", description: "Activate or deactivate a hall" },
+    // ── screen ──────────────────────────────────
+    { name: "screen:list", description: "List screens in a cinema" },
+    { name: "screen:read", description: "View screen details" },
+    { name: "screen:create", description: "Create a new screen" },
+    { name: "screen:update", description: "Update screen details" },
+    { name: "screen:delete", description: "Soft-delete a screen" },
+    { name: "screen:toggle-active", description: "Activate or deactivate a screen" },
 
     // ── SEAT ──────────────────────────────────
-    { name: "seat:list", description: "List seats in a hall" },
+    { name: "seat:list", description: "List seats in a screen" },
     { name: "seat:read", description: "View seat details" },
-    { name: "seat:create", description: "Add seats to a hall" },
+    { name: "seat:create", description: "Add seats to a screen" },
     { name: "seat:update", description: "Update seat details / type" },
     { name: "seat:delete", description: "Remove a seat" },
     { name: "seat:set-maintenance", description: "Mark a seat as under maintenance" },
@@ -150,8 +150,8 @@ const rolePermissionMap = {
         "cinema:list", "cinema:read", "cinema:create", "cinema:update",
         "cinema:delete", "cinema:toggle-active",
 
-        "hall:list", "hall:read", "hall:create", "hall:update",
-        "hall:delete", "hall:toggle-active",
+        "screen:list", "screen:read", "screen:create", "screen:update",
+        "screen:delete", "screen:toggle-active",
 
         "seat:list", "seat:read", "seat:create", "seat:update",
         "seat:delete", "seat:set-maintenance",
@@ -198,7 +198,7 @@ const rolePermissionMap = {
 
         "cinema:list", "cinema:read", "cinema:update", "cinema:toggle-active",
 
-        "hall:list", "hall:read", "hall:create", "hall:update", "hall:toggle-active",
+        "screen:list", "screen:read", "screen:create", "screen:update", "screen:toggle-active",
 
         "seat:list", "seat:read", "seat:create", "seat:update", "seat:set-maintenance",
 
@@ -241,7 +241,7 @@ const rolePermissionMap = {
 
         "cinema:list", "cinema:read",
 
-        "hall:list", "hall:read",
+        "screen:list", "screen:read",
 
         "seat:list", "seat:read",
 
@@ -274,7 +274,7 @@ const rolePermissionMap = {
 
         "cinema:list", "cinema:read",
 
-        "hall:list", "hall:read",
+        "screen:list", "screen:read",
 
         "seat:list", "seat:read",
 

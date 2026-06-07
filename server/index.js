@@ -10,6 +10,8 @@ import { globalErrorHandler, notFoundHandler } from "./src/utils/error.js";
 import authRouter from "./src/routes/auth.router.js";
 import emailRouter from "./src/routes/email.router.js";
 import userRouter from "./src/routes/user.router.js";
+import cinemaRouter from "./src/routes/cinema.router.js";
+import screenRouter from "./src/routes/screen.router.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -63,6 +65,8 @@ app.get("/health", (req, res) => {
 app.use(`${API_VERSION}/auth`, authRouter);
 app.use(`${API_VERSION}/email`, emailRouter);
 app.use(`${API_VERSION}/users`, userRouter);
+app.use(`${API_VERSION}/cinemas`, cinemaRouter);
+app.use(`${API_VERSION}/screens`, screenRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

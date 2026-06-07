@@ -26,7 +26,7 @@ enum UserStatus {
   BLOCKED
 }
 
-enum HallType {
+enum screenType {
   STANDARD
   VIP
   IMAX
@@ -184,9 +184,10 @@ model Cinema {
 
   name    String
   address String
+  slug    String @unique
 
-  city    String
-  country String
+  city    String?
+  country String?
 
   phone String?
   email String?
@@ -197,17 +198,18 @@ model Cinema {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  halls Hall[]
+  screens screen[]
 }
 
-model Hall {
+model screen {
   id String @id @default(uuid())
 
   cinemaId String
 
   name String
+  slug String @unique
 
-  type HallType
+  type screenType
 
   capacity Int
 
@@ -227,7 +229,7 @@ model Hall {
 model Seat {
   id String @id @default(uuid())
 
-  hallId String
+  screenId String
 
   rowLabel   String
   seatNumber Int
@@ -236,7 +238,7 @@ model Seat {
 
   status SeatStatus @default(AVAILABLE)
 
-  hall Hall @relation(fields: [hallId], references: [id])
+  screen screen @relation(fields: [screenId], references: [id])
 
   bookingSeats BookingSeat[]
   showSeats    ShowSeat[]
@@ -245,13 +247,14 @@ model Seat {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@unique([hallId, rowLabel, seatNumber])
+  @@unique([screenId, rowLabel, seatNumber])
 }
 
 model Movie {
   id String @id @default(uuid())
 
   title String
+  slug  String @unique
 
   description String?
 
@@ -284,6 +287,7 @@ model Genre {
   id String @id @default(uuid())
 
   name String @unique
+  slug String @unique
 
   movies MovieGenre[]
 }
@@ -303,7 +307,7 @@ model Show {
 
   movieId String
 
-  hallId String
+  screenId String
 
   startTime DateTime
 
@@ -317,7 +321,7 @@ model Show {
 
   movie Movie @relation(fields: [movieId], references: [id])
 
-  hall Hall @relation(fields: [hallId], references: [id])
+  screen screen @relation(fields: [screenId], references: [id])
 
   createdBy User @relation("ShowCreator", fields: [createdById], references: [id])
 
@@ -330,7 +334,7 @@ model Show {
   deletedAt DateTime?
   showSeats ShowSeat[]
 
-  @@index([hallId, startTime])
+  @@index([screenId, startTime])
 }
 
 model PricingRule {

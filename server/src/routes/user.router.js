@@ -48,21 +48,21 @@ userRouter.post(
 );
 
 userRouter.patch(
-    "/update",
+    "/update/:userId",
     verifyUser,
     requireRole("OWNER", "MANAGER", "STAFF"),
     updateUser
 );
 
 userRouter.patch(
-    "/role",
+    "/role/:userId",
     verifyUser,
     requirePermissions("user:change-role"),
     updateUserRole
 );
 
 userRouter.patch(
-    "/status",
+    "/status/:userId",
     verifyUser,
     requirePermissions("user:change-status"),
     updateUserStatus
