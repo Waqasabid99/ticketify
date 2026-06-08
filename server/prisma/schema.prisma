@@ -331,7 +331,8 @@ model Show {
 
   endTime DateTime
 
-  cleaningMinutes Int @default(15)
+  cleaningMinutes Int      @default(15)
+  occupiedUntil   DateTime
 
   status ShowStatus @default(SCHEDULED)
 
@@ -367,6 +368,8 @@ model PricingRule {
   type PricingType
 
   show Show @relation(fields: [showId], references: [id])
+
+  @@unique([showId, seatType])
 }
 
 model Booking {
