@@ -16,10 +16,13 @@ import movieRouter from "./src/routes/movie.router.js";
 import genreRouter from "./src/routes/genre.routes.js";
 import showRouter from "./src/routes/show.router.js";
 import seatRouter from "./src/routes/seat.router.js";
+import couponRouter from "./src/routes/coupon.router.js";
+import bookingRouter from "./src/routes/booking.routes.js";
+import ticketRouter from "./src/routes/ticket.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const API_VERSION = process.env.API_VERSION || "/api/v1";
+export const API_VERSION = process.env.API_VERSION || "/api/v1";
 
 // Environment variable checks
 if (process.env.NODE_ENV === "production") {
@@ -75,6 +78,9 @@ app.use(`${API_VERSION}/movies`, movieRouter);
 app.use(`${API_VERSION}/genres`, genreRouter);
 app.use(`${API_VERSION}/shows`, showRouter);
 app.use(`${API_VERSION}/seats`, seatRouter);
+app.use(`${API_VERSION}/coupons`, couponRouter);
+app.use(`${API_VERSION}/bookings`, bookingRouter);
+app.use(`${API_VERSION}/tickets`, ticketRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

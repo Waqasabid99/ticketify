@@ -67,6 +67,12 @@ enum BookingStatus {
   REFUNDED
 }
 
+enum BookingSource {
+  WEB
+  MOBILE
+  COUNTER
+}
+
 enum ShowSeatStatus {
   AVAILABLE
   RESERVED
@@ -78,6 +84,14 @@ enum TicketStatus {
   ACTIVE
   USED
   CANCELLED
+}
+
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+  JAZZCASH
+  EASYPAISA
+  CASH
 }
 
 enum PaymentStatus {
@@ -143,6 +157,7 @@ model User {
 
   auditLogs     AuditLog[]
   refreshTokens RefreshToken[]
+  couponUsages  CouponUsage[]
 }
 
 model RefreshToken {
@@ -348,10 +363,11 @@ model Show {
 
   pricingRules PricingRule[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
-  showSeats ShowSeat[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  showSeats    ShowSeat[]
+  bookingSeats BookingSeat[]
 
   @@index([screenId, startTime])
 }
@@ -391,9 +407,16 @@ model Booking {
 
   status BookingStatus
 
+  source BookingSource @default(WEB)
+
   expiresAt DateTime?
 
   bookedAt DateTime?
+
+  movieTitle    String
+  screenName    String
+  cinemaName    String
+  showStartTime DateTime
 
   user User @relation(fields: [userId], references: [id])
 
@@ -407,9 +430,14 @@ model Booking {
 
   payments Payment[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  showSeats ShowSeat[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  showSeats    ShowSeat[]
+  couponUsages CouponUsage[]
+
+  @@index([userId])
+  @@index([showId])
+  @@index([status])
 }
 
 model BookingSeat {
@@ -417,13 +445,17 @@ model BookingSeat {
 
   bookingId String
 
-  seatId String
+  showId    String
+  seatId    String
+  seatLabel String
+  seatType  SeatType
 
   price Decimal @db.Decimal(10, 2)
 
   booking Booking @relation(fields: [bookingId], references: [id])
+  show    Show    @relation(fields: [showId], references: [id])
+  seat    Seat    @relation(fields: [seatId], references: [id])
 
-  seat    Seat     @relation(fields: [seatId], references: [id])
   tickets Ticket[]
 
   @@unique([bookingId, seatId])
@@ -449,6 +481,8 @@ model Ticket {
 
   bookingId String
 
+  ticketNumber String @unique
+
   qrCode String @unique
 
   status TicketStatus @default(ACTIVE)
@@ -456,6 +490,8 @@ model Ticket {
   checkedInAt DateTime?
 
   booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
 }
 
 model Payment {
@@ -463,11 +499,14 @@ model Payment {
 
   bookingId String
 
-  provider String
+  provider PaymentProvider @default(CASH)
 
   transactionId String?
 
-  amount Decimal @db.Decimal(10, 2)
+  amount          Decimal   @db.Decimal(10, 2)
+  gatewayResponse Json?
+  failureReason   String?
+  paidAt          DateTime?
 
   status PaymentStatus
 
@@ -475,6 +514,9 @@ model Payment {
 
   createdAt DateTime @default(now())
   refunds   Refund[]
+
+  @@index([bookingId])
+  @@index([status])
 }
 
 model Refund {
@@ -515,9 +557,24 @@ model Coupon {
 
   bookings Booking[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  couponUsages CouponUsage[]
+}
+
+model CouponUsage {
+  couponId  String
+  bookingId String
+  userId    String
+
+  coupon  Coupon  @relation(fields: [couponId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  usedAt DateTime @default(now())
+
+  @@unique([couponId, bookingId])
 }
 
 model Notification {

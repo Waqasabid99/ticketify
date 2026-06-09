@@ -149,6 +149,15 @@ export const getAllShows = asyncHandler(async (req, res) => {
                         },
                     },
                 },
+                _count: {
+                    select: {
+                        showSeats: {
+                            where: {
+                                status: ShowSeatStatus.AVAILABLE
+                            }
+                        }
+                    }
+                },
                 movie: {
                     select: {
                         title: true,

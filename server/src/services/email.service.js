@@ -12,6 +12,11 @@ const templatePath = path.join(
     "src/templates/verification.ejs"
 );
 
+const bookingTemplatePath = path.join(
+    process.cwd(),
+    "src/templates/booking-confirmation.ejs"
+);
+
 export const sendVerificationEmail = asyncHandler(async (user) => {
     const { id, email, fullName } = user;
     const verificationToken = generateVerificationToken(id);
@@ -96,4 +101,53 @@ export const verifyEmail = asyncHandler(async (req, res) => {
         "Email verified successfully",
         updatedUser
     );
+});
+
+export const sendBookingConfirmationEmail = asyncHandler(async (booking, tickets, qrCode) => {
+    const {
+        id: bookingId,
+        bookingNumber,
+        status,
+        movieTitle,
+        cinemaName,
+        screenName,
+        showStartTime,
+        finalAmount,
+        userId,
+    } = booking;
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+    });
+
+    if (!user) return;
+
+    const ticketNumbers = tickets.map((t) => t.ticketNumber);
+    const seatLabels = booking.seats?.map((s) => s.seatLabel) ?? [];
+
+    const emailHtml = await ejs.renderFile(bookingTemplatePath, {
+        name: user.fullName,
+        email: user.email,
+        bookingNumber,
+        bookingId,
+        status,
+        movieTitle,
+        cinemaName,
+        screenName,
+        showStartTime,
+        finalAmount,
+        ticketNumbers,
+        seatLabels,
+        qrCode,
+        currentYear: new Date().getFullYear(),
+    });
+
+    await transporter.sendMail({
+        from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM_ADDRESS}>`,
+        to: user.email,
+        subject: `Booking Confirmed — ${movieTitle}`,
+        html: emailHtml,
+    });
+
+    return true;
 });
