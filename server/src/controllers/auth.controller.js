@@ -1,8 +1,8 @@
 import { UserRole, UserStatus } from "../generated/prisma/enums.ts";
-import { sendVerificationEmail } from "../services/email.service.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../services/email.service.js";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
-import { clearAuthCookies, comparePassword, generateAccessToken, generateRefreshToken, getSafeUser, hashPassword, JWT_REFRESH_EXPIRES_IN, setAuthCookies } from "../utils/helper.js";
+import { clearAuthCookies, comparePassword, generateAccessToken, generatePasswordResetToken, generateRefreshToken, getSafeUser, hashPassword, JWT_REFRESH_EXPIRES_IN, setAuthCookies, verifyPasswordResetToken } from "../utils/helper.js";
 import prisma from "../config/prisma.js";
 import ms from "ms";
 
@@ -36,11 +36,23 @@ export const registerUser = asyncHandler(async (req, res) => {
         },
     });
 
+    const permissions = await prisma.rolePermission.findMany({
+        where: {
+            role: user?.role,
+        },
+        include: {
+            permission: true,
+        },
+    });
+
     const safeUser = getSafeUser(user);
     await sendVerificationEmail(safeUser);
 
 
-    return apiResponse(res, 201, true, "User registered successfully", safeUser);
+    return apiResponse(res, 201, true, "User registered successfully", {
+        user: safeUser,
+        permissions: permissions.map((rp) => rp.permission.name),
+    });
 });
 
 export const adminRegisterUser = asyncHandler(async (req, res) => {
@@ -73,9 +85,21 @@ export const adminRegisterUser = asyncHandler(async (req, res) => {
         },
     });
 
+    const permissions = await prisma.rolePermission.findMany({
+        where: {
+            role: user?.role,
+        },
+        include: {
+            permission: true,
+        },
+    });
+
     const safeUser = getSafeUser(user);
 
-    return apiResponse(res, 201, true, "User registered successfully", safeUser);
+    return apiResponse(res, 201, true, "User registered successfully", {
+        user: safeUser,
+        permissions: permissions.map((rp) => rp.permission.name),
+    });
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -83,9 +107,29 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     if (!email || !password) throw ApiError.badRequest("Email and password are required");
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+        where: {
+            email,
+            deletedAt: null,
+        },
+    });
 
-    if (!user) throw ApiError.notFound("Invalid email or password");
+    if (!user) {
+        throw ApiError.unauthorized("Invalid email or password");
+    }
+
+    const permissions = await prisma.rolePermission.findMany({
+        where: {
+            role: user?.role,
+        },
+        include: {
+            permission: true,
+        },
+    });
+
+    if (!permissions || permissions.length === 0) {
+        throw ApiError.unauthorized("Failed to fetch permissions. Try again later.");
+    }
 
     const isPasswordValid = await comparePassword(password, user.passwordHash);
 
@@ -126,7 +170,10 @@ export const loginUser = asyncHandler(async (req, res) => {
         refreshToken,
         refreshMaxAge
     );
-    return apiResponse(res, 200, true, "User logged in successfully", safeUser);
+    return apiResponse(res, 200, true, "User logged in successfully", {
+        user: safeUser,
+        permissions: permissions.map((rp) => rp.permission.name),
+    });
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
@@ -155,6 +202,23 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
     return apiResponse(res, 200, true, "Logout successful");
 });
+
+export const verifyUsers = asyncHandler(async (req, res) => {
+    const user = req.user;
+
+    if (!user) throw ApiError.unauthorized("User not found");
+
+    const permissions = await prisma.rolePermission.findMany({
+        where: {
+            role: user?.role,
+        },
+        include: {
+            permission: true,
+        },
+    });
+
+    return apiResponse(res, 200, true, "User verified successfully", { user: getSafeUser(user), permissions: permissions.map((rp) => rp.permission.name) });
+})
 
 export const refreshToken = asyncHandler(async (req, res) => {
     const refreshToken = req.cookies?.refreshToken;
@@ -222,13 +286,18 @@ export const refreshToken = asyncHandler(async (req, res) => {
     return apiResponse(res, 200, true, "Token refreshed");
 });
 
-// forget password
+// Forget password — generates a reset token and emails a link
 export const forgetPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
+    if (!email) throw ApiError.badRequest("Email is required");
+
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) throw ApiError.notFound("User not found");
+    // Always return 200 so we don't reveal whether an account exists
+    if (!user) {
+        return apiResponse(res, 200, true, "If that email is registered, a reset link has been sent.");
+    }
 
     if (!user.emailVerified) {
         await sendVerificationEmail(user);
@@ -239,19 +308,57 @@ export const forgetPassword = asyncHandler(async (req, res) => {
         throw ApiError.unauthorized("Your account is not active. Please contact the administrator.");
     }
 
-    // Hash Password
-    const hashedPassword = await hashPassword(password);
+    const resetToken = generatePasswordResetToken(user.id);
+    const resetExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
         where: { id: user.id },
         data: {
-            passwordHash: hashedPassword,
+            passwordResetToken: resetToken,
+            passwordResetExpiry: resetExpiry,
         },
     });
 
-    // Get safeUser
-    const safeUser = getSafeUser(updatedUser);
-    return apiResponse(res, 200, true, "Password updated", { user: safeUser });
+    await sendPasswordResetEmail(user, resetToken);
+
+    return apiResponse(res, 200, true, "If that email is registered, a reset link has been sent.");
+});
+
+// Verify password reset token and set new password
+export const verifyPasswordReset = asyncHandler(async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) throw ApiError.badRequest("Token and new password are required");
+
+    if (newPassword.length < 8) throw ApiError.badRequest("Password must be at least 8 characters long");
+
+    const decoded = verifyPasswordResetToken(token);
+
+    const user = await prisma.user.findFirst({
+        where: {
+            id: decoded.userId,
+            passwordResetToken: token,
+            passwordResetExpiry: { gt: new Date() },
+        },
+    });
+
+    if (!user) throw ApiError.badRequest("Invalid or expired password reset token");
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+        where: { id: user.id },
+        data: {
+            passwordHash: hashedPassword,
+            passwordResetToken: null,
+            passwordResetExpiry: null,
+        },
+    });
+
+    // Invalidate all refresh tokens for security
+    await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+
+    return apiResponse(res, 200, true, "Password reset successfully. Please log in with your new password.");
 });
 
 // Chnage password

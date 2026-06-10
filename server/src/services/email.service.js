@@ -1,10 +1,11 @@
 import prisma from "../config/prisma.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { generateVerificationToken, verifyVerificationToken, } from "../utils/helper.js";
+import { generateVerificationToken, generatePasswordResetToken, verifyVerificationToken } from "../utils/helper.js";
 import { transporter } from "../config/mail.js";
 import ejs from "ejs";
 import path from "path";
 import { ApiError } from "../utils/error.js";
+import { apiResponse } from "../utils/asyncHandler.js";
 import { UserStatus } from "../generated/prisma/enums.ts";
 
 const templatePath = path.join(
@@ -66,7 +67,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
     const user = await prisma.user.findFirst({
         where: {
-            id: decoded.id,
+            id: decoded.userId,
             emailVerificationToken: token,
             emailVerificationExpiry: {
                 gt: new Date(),
@@ -147,6 +148,29 @@ export const sendBookingConfirmationEmail = asyncHandler(async (booking, tickets
         to: user.email,
         subject: `Booking Confirmed — ${movieTitle}`,
         html: emailHtml,
+    });
+
+    return true;
+});
+
+export const sendPasswordResetEmail = asyncHandler(async (user, resetToken) => {
+    const { id, email, firstName } = user;
+    const resetUrl = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
+
+    await transporter.sendMail({
+        from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM_ADDRESS}>`,
+        to: email,
+        subject: "Reset Your Password",
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Password Reset Request</h2>
+                <p>Hi ${firstName},</p>
+                <p>You requested a password reset. Click the button below to set a new password. This link expires in <strong>15 minutes</strong>.</p>
+                <a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">Reset Password</a>
+                <p style="margin-top:24px;color:#6b7280;font-size:13px;">If you didn't request this, you can safely ignore this email.</p>
+                <p style="color:#6b7280;font-size:13px;">© ${new Date().getFullYear()} Ticketify</p>
+            </div>
+        `,
     });
 
     return true;

@@ -72,7 +72,7 @@ export const verifyAccessToken = (token) => {
     );
 
     if (decoded.tokenType !== "access") {
-        throw ApiError("Invalid token type", 401);
+        throw ApiError.unauthorized("Invalid token type");
     }
 
     return decoded;
@@ -86,7 +86,7 @@ export const verifyRefreshToken = (token) => {
     );
 
     if (decoded.tokenType !== "refresh") {
-        throw ApiError("Invalid token type", 401);
+        throw ApiError.unauthorized("Invalid token type");
     }
 
     return decoded;
@@ -175,7 +175,21 @@ export const generatePasswordResetToken = (userId) => {
     },
         JWT_PASSWORD_RESET_SECRET,
         { expiresIn: JWT_PASSWORD_RESET_EXPIRES_IN });
-}
+};
+
+export const verifyPasswordResetToken = (token) => {
+    try {
+        const decoded = jwt.verify(token, JWT_PASSWORD_RESET_SECRET);
+
+        if (decoded.tokenType !== "passwordReset") {
+            throw ApiError.unauthorized("Invalid token type");
+        }
+
+        return decoded;
+    } catch (error) {
+        throw ApiError.unauthorized("Invalid or expired password reset token");
+    }
+};
 
 export const generateSlug = (text) =>
     slugify(text, {

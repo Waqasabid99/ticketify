@@ -154,7 +154,8 @@ model User {
 
   bookings Booking[]
 
-  createdShows Show[] @relation("ShowCreator")
+  createdShows Show[]       @relation("ShowCreator")
+  permissions  Permission[]
 
   auditLogs     AuditLog[]
   refreshTokens RefreshToken[]
@@ -183,7 +184,9 @@ model Permission {
   name        String  @unique
   description String?
 
-  roles RolePermission[]
+  roles  RolePermission[]
+  user   User?            @relation(fields: [userId], references: [id])
+  userId String?
 }
 
 model RolePermission {
