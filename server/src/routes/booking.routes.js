@@ -8,10 +8,13 @@ import {
     cancelBooking,
     expireStaleBookings,
     getShowSeatAvailability,
+    getTicketsByBooking,
 } from "../controllers/booking.controller.js";
 import { verifyUser } from "../middleware/verify.middleware.js";
-import { requirePermissions, requireOwnershipOrPermission } from "../middleware/acl.middleware.js";
+import { requirePermissions, requireOwnershipOrPermission, requireRole } from "../middleware/acl.middleware.js";
 import prisma from "../config/prisma.js";
+import { createCounterBooking } from "../controllers/counterBooking.controller.js";
+import { UserRole } from "../generated/prisma/enums.ts";
 
 const bookingRouter = express.Router();
 
@@ -25,6 +28,13 @@ bookingRouter.post(
     verifyUser,
     requirePermissions("booking:create"),
     createBooking
+);
+
+bookingRouter.post(
+    "/counter",
+    verifyUser,
+    requireRole([UserRole.OWNER, UserRole.MANAGER, UserRole.STAFF]),
+    createCounterBooking
 );
 
 bookingRouter.get(
@@ -55,6 +65,13 @@ bookingRouter.get(
         }
     ),
     getBookingById
+);
+
+bookingRouter.get(
+    "/:bookingId/tickets",
+    verifyUser,
+    requirePermissions("booking:read-self"),
+    getTicketsByBooking
 );
 
 bookingRouter.patch(

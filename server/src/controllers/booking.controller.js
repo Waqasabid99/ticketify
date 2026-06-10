@@ -1,10 +1,11 @@
 import prisma from "../config/prisma.js";
-import { BookingStatus, BookingSource, ShowSeatStatus, TicketStatus, ShowStatus, CouponType } from "../generated/prisma/enums.ts";
+import { BookingStatus, BookingSource, ShowSeatStatus, TicketStatus, ShowStatus, CouponType, UserRole } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
 import { validateCoupon } from "../services/validateCoupon.service.js";
 import { generateBookingNumber, generateQrCode, generateTicketNumber } from "../utils/bookingHelper.js";
 import { sendBookingConfirmationEmail } from "../services/email.service.js";
+import { ticketInclude } from "./ticket.controller.js";
 
 // ─── Create Booking ──────────────────────────────────────────────────────────
 
@@ -341,6 +342,34 @@ export const getBookingById = asyncHandler(async (req, res) => {
     return apiResponse(res, 200, true, "Booking fetched successfully.", booking);
 });
 
+// ─── Get Tickets By Booking ──────────────────────────────────────────────────
+
+export const getTicketsByBooking = asyncHandler(async (req, res) => {
+    const { bookingId } = req.params;
+    const { id: requesterId, role } = req.user;
+
+    if (!bookingId) throw ApiError.badRequest("Booking ID is required.");
+
+    const booking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        select: { userId: true, status: true },
+    });
+
+    if (!booking) throw ApiError.notFound("Booking not found.");
+
+    const isCustomer = role === UserRole.CUSTOMER;
+    if (isCustomer && booking.userId !== requesterId)
+        throw ApiError.forbidden("Access denied.");
+
+    const tickets = await prisma.ticket.findMany({
+        where: { bookingId },
+        include: ticketInclude,
+        orderBy: { bookingSeat: { seatLabel: "asc" } },
+    });
+
+    return apiResponse(res, 200, true, "Tickets fetched successfully.", { tickets });
+});
+
 // ─── Confirm Booking (after successful payment) ──────────────────────────────
 
 export const confirmBooking = asyncHandler(async (req, res) => {
@@ -397,19 +426,22 @@ export const confirmBooking = asyncHandler(async (req, res) => {
             data: { status: ShowSeatStatus.BOOKED, reservedUntil: null },
         });
 
-        const { token, qrImage } = await generateQrCode();
-
+        let qrImage;
         // Issue one ticket per seat
-        const ticketData = booking.seats.map((bookingSeat) => {
-            const ticketNumber = generateTicketNumber();
-            return {
-                bookingSeatId: bookingSeat.id,
-                bookingId,
-                ticketNumber,
-                qrCode: token,
-                status: TicketStatus.ACTIVE,
-            };
-        });
+        const ticketData = await Promise.all(
+            booking.seats.map(async (bookingSeat) => {
+                const { token, qrImage: currentQrImage } = await generateQrCode();
+                qrImage = currentQrImage;
+
+                return {
+                    bookingSeatId: bookingSeat.id,
+                    bookingId,
+                    ticketNumber: generateTicketNumber(),
+                    qrCode: token,
+                    status: TicketStatus.ACTIVE,
+                };
+            })
+        );
 
         await tx.ticket.createMany({ data: ticketData });
 

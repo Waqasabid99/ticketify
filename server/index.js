@@ -19,6 +19,8 @@ import seatRouter from "./src/routes/seat.router.js";
 import couponRouter from "./src/routes/coupon.router.js";
 import bookingRouter from "./src/routes/booking.routes.js";
 import ticketRouter from "./src/routes/ticket.routes.js";
+import paymentRouter from "./src/routes/payment.router.js";
+import analyticsRouter from "./src/routes/analytics.router.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -43,6 +45,8 @@ app.use(helmet());
 
 // compression
 app.use(compression());
+
+app.use(`${API_VERSION}/payments`, paymentRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -81,6 +85,7 @@ app.use(`${API_VERSION}/seats`, seatRouter);
 app.use(`${API_VERSION}/coupons`, couponRouter);
 app.use(`${API_VERSION}/bookings`, bookingRouter);
 app.use(`${API_VERSION}/tickets`, ticketRouter);
+app.use(`${API_VERSION}/analytics`, analyticsRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

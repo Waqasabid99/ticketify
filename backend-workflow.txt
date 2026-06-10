@@ -86,6 +86,3 @@
     - Track all Admin/Manager Actions
     - Track User Sign Ups
     - Track Booking History
-Reports & Analytics
-Notifications
-Audit Logs

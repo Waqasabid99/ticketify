@@ -146,6 +146,7 @@ model User {
 
   passwordResetToken  String?   @unique
   passwordResetExpiry DateTime?
+  isGuest             Boolean   @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
