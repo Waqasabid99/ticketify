@@ -158,13 +158,16 @@ export const verifyVerificationToken = (token) => {
         );
 
         if (decoded.tokenType !== "verification") {
-            throw ApiError("Invalid token type", 401);
+            throw ApiError.unauthorized("Invalid token type");
+        }
+
+        if (Date.now() / 1000 > decoded.exp) {
+            throw ApiError.unauthorized("Verification token has expired");
         }
 
         return decoded;
     } catch (error) {
-        console.log(error)
-        throw ApiError("Invalid or expired verification token", 401);
+        throw ApiError.unauthorized("Invalid or expired verification token");
     }
 };
 

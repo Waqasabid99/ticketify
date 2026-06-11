@@ -398,7 +398,7 @@
   p {
     color: var(--color-text-secondary);
     line-height: var(--leading-relaxed);
-    margin-bottom: var(--space-4);
+    /* margin-bottom: var(--space-4); */
   }
 
   small {
@@ -415,9 +415,9 @@
   }
 
   a:hover {
-    color: var(--color-info-hover);
+    color: var(--color-accent-dim);
     text-decoration: underline;
-    text-decoration-color: var(--color-info-hover);
+    text-decoration-color: var(--color-accent-);
     text-underline-offset: 3px;
   }
 
@@ -845,7 +845,7 @@
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--color-text-secondary);
-    margin-bottom: var(--space-2);
+    /* margin-bottom: var(--space-2); */
     letter-spacing: var(--tracking-wide);
   }
 

@@ -193,16 +193,13 @@ const validateField = (name, value) => {
             if (!value.trim()) return "Email is required.";
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Enter a valid email address.";
             return "";
-        case "password":
-            if (!value) return "Password is required.";
-            return "";
         default:
             return "";
     }
 };
 
 const validateAll = (formData) => {
-    const fields = ["email", "password"];
+    const fields = ["email"];
     const errors = {};
     fields.forEach((field) => {
         const msg = validateField(field, formData[field]);
@@ -211,31 +208,26 @@ const validateAll = (formData) => {
     return errors;
 };
 
-const Login = () => {
+const ForgetPassword = () => {
     const router = useRouter();
-    const { login, error: serverError, isLoading } = useAuthStore();
-
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    });
+    const { forgetPassword, error: serverError, isLoading } = useAuthStore();
+    const [email, setEmail] = useState("");
 
     const [fieldErrors, setFieldErrors] = useState({});
-    const [showPassword, setShowPassword] = useState(false);
 
     /* Live per-field validation on blur */
     const handleBlur = (e) => {
-        const { name, value } = e.target;
-        const msg = validateField(name, value);
-        setFieldErrors((prev) => ({ ...prev, [name]: msg }));
+        const value = e.target.value;
+        const msg = validateField("email", value);
+        setFieldErrors((prev) => ({ ...prev, email: msg }));
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const value = e.target.value;
+        setEmail(value);
         /* Clear the error for this field as soon as they start correcting it */
-        if (fieldErrors[name]) {
-            setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+        if (fieldErrors.email) {
+            setFieldErrors((prev) => ({ ...prev, email: "" }));
         }
     };
 
@@ -250,19 +242,16 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const errors = validateAll(formData);
+        const errors = validateAll({ email });
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
             return;
         }
 
-        const res = await login({
-            email: formData.email,
-            password: formData.password,
-        });
+        const res = await forgetPassword(email);
 
         if (res) {
-            router.push("/");
+            router.push("/login");
         }
     };
 
@@ -304,13 +293,10 @@ const Login = () => {
                             className="text-3xl font-bold text-(--color-text-primary) tracking-tight"
                             style={{ fontFamily: "var(--font-display)" }}
                         >
-                            Login to your account
+                            Reset your password
                         </h2>
                         <p className="text-sm text-(--color-text-muted)">
-                            Don't have an account?{" "}
-                            <Link href="/register" className="link-accent font-medium">
-                                Sign up instead
-                            </Link>
+                            Enter your email address and we'll send you a link to reset your password.
                         </p>
                     </div>
 
@@ -318,7 +304,7 @@ const Login = () => {
                     {hasErrors && (
                         <ErrorBox
                             error={errorPayload}
-                            title={"Unable to Login to your account"}
+                            title={"Unable to reset your password"}
                             onClose={() => setFieldErrors({})}
                             onCloseItem={serverError ? undefined : dismissFieldError}
                         />
@@ -331,7 +317,7 @@ const Login = () => {
                             name="email"
                             id="email"
                             type="email"
-                            value={formData.email}
+                            value={email}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             placeholder="ada@example.com"
@@ -340,24 +326,8 @@ const Login = () => {
                             error={fieldErrors.email}
                         />
 
-                        <FormField
-                            label="Password"
-                            name="password"
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder={"• • • • • •"}
-                            value={formData.password}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            // Icon={Eye}
-                            ActionIcon={showPassword ? EyeOff : Eye}
-                            onActionClick={() => setShowPassword((v) => !v)}
-                            required
-                            error={fieldErrors.password}
-                        />
-
-                        <Link href="/forget-password" className="text-xs text-(--color-accent) text-right cursor-pointer">
-                            Forgot password?
+                        <Link href="/login" className="text-xs text-(--color-accent) text-right cursor-pointer">
+                            Remember password? Login instead.
                         </Link>
 
                         <button
@@ -366,8 +336,8 @@ const Login = () => {
                             className="btn btn-primary btn-lg w-full mt-1"
                         >
                             {isLoading
-                                ? <Loader variant="dots" loaderColor="var(--color-text-primary)" inline text="Logging in..." size="sm" />
-                                : "Login"
+                                ? <Loader variant="dots" loaderColor="var(--color-text-primary)" inline text="Resetting password..." size="sm" />
+                                : "Reset password"
                             }
                         </button>
                     </form>
@@ -384,4 +354,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default ForgetPassword;

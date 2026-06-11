@@ -40,6 +40,7 @@ export const useAuthStore = create(
                     });
                     toast.success(data.message);
                 } catch (error) {
+                    console.log(error.response.data.message)
                     set({
                         isLoading: false,
                         error: error.response?.data?.message || error.message || "Something went wrong",
@@ -62,6 +63,8 @@ export const useAuthStore = create(
                         isLoading: false,
                     });
                     toast.success(data.message);
+
+                    return true;
                 } catch (error) {
                     set({
                         isLoading: false,

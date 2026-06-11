@@ -49,7 +49,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     await sendVerificationEmail(safeUser);
 
 
-    return apiResponse(res, 201, true, "User registered successfully", {
+    return apiResponse(res, 201, true, "Success, Verification email has been sent to your email.", {
         user: safeUser,
         permissions: permissions.map((rp) => rp.permission.name),
     });
@@ -137,7 +137,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     if (!user.emailVerified) {
         await sendVerificationEmail(user);
-        throw ApiError.unauthorized("Please verify your email first.");
+        throw ApiError.unauthorized("A verification link has been sent to your email. Please verify your email first.");
     }
 
     if (user.status !== UserStatus.ACTIVE) {
