@@ -6,6 +6,7 @@ import {
     updateShow,
     deleteShow,
     updateShowStatus,
+    getShowByMovie,
 } from "../controllers/show.controller.js";
 import { verifyUser } from "../middleware/verify.middleware.js";
 import { requirePermissions } from "../middleware/acl.middleware.js";
@@ -19,6 +20,7 @@ const showRouter = express.Router();
 
 showRouter.get("/", getAllShows);
 showRouter.get("/:showId", getShowById);
+showRouter.get("/movie/:movieId", getShowByMovie);
 
 // ─────────────────────────────────────────────────────────────
 // Protected routes — manager/owner only

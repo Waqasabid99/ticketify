@@ -267,6 +267,57 @@ export const getShowById = asyncHandler(async (req, res) => {
     return apiResponse(res, 200, true, "Show fetched successfully", show);
 });
 
+export const getShowByMovie = asyncHandler(async (req, res) => {
+    const { movieId } = req.params;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    if (!movieId) throw ApiError.badRequest("Movie ID is required");
+
+    const [shows, count] = await Promise.all([
+        prisma.show.findMany({
+            where: {
+                movieId: movieId,
+                status: ShowStatus.SCHEDULED,
+                deletedAt: null,
+            },
+            include: {
+                screen: {
+                    select: {
+                        name: true,
+                        cinema: {
+                            select: {
+                                name: true,
+                                city: true,
+                            },
+                        },
+                    },
+                },
+            },
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: {
+                startTime: "asc"
+            }
+        }),
+        prisma.show.count({
+            where: {
+                movieId: movieId,
+                status: ShowStatus.SCHEDULED,
+                deletedAt: null,
+            },
+        }),
+    ]);
+
+    return apiResponse(res, 200, true, "Show fetched successfully", {
+        shows,
+        count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit),
+    });
+})
+
 export const updateShow = asyncHandler(async (req, res) => {
     const { showId } = req.params;
     const { id: updatedById } = req.user;

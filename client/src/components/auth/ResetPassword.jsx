@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
-import { Eye, EyeOff, Ticket, Film, Star, Clock } from "lucide-react";
+import { Eye, EyeOff, Film, Star, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ErrorBox } from "@/components/ui/ErrorBox";
@@ -51,24 +51,13 @@ const FormField = ({
 );
 
 const LeftPanel = () => (
-    <div className="hidden md:flex flex-col justify-between h-full px-12 py-14 bg-(--color-surface) border-r border-(--color-border-subtle) relative overflow-hidden">
+    <div className="hidden md:flex flex-col justify-center h-full px-12 py-14 bg-(--color-surface) border-r border-(--color-border-subtle) relative overflow-hidden">
         <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none" aria-hidden="true"
             style={{ backgroundImage: "radial-gradient(circle, var(--color-text-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
         />
         <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full pointer-events-none opacity-10 border-2 border-(--color-accent)" aria-hidden="true" />
         <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full pointer-events-none opacity-8 border border-(--color-accent)" aria-hidden="true" />
-
-        <div className="relative z-10">
-            <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-md bg-(--color-accent) flex items-center justify-center">
-                    <Ticket size={16} className="text-(--color-accent-text)" strokeWidth={2.5} />
-                </div>
-                <span className="text-xl font-extrabold tracking-tight text-(--color-text-primary)" style={{ fontFamily: "var(--font-display)" }}>
-                    Ticketify
-                </span>
-            </div>
-        </div>
 
         <div className="relative z-10 flex flex-col gap-6">
             <div>
@@ -98,7 +87,7 @@ const LeftPanel = () => (
             </div>
         </div>
 
-        <div className="relative z-10">
+        <div className="absolute bottom-10 z-10">
             <p className="text-xs text-(--color-text-muted)">
                 Remember your password?{" "}
                 <Link href="/login" className="link-accent font-medium">Back to login</Link>
@@ -189,16 +178,6 @@ const ResetPassword = ({ token }) => {
 
             <section className="flex items-center justify-center px-6 py-12 md:py-0">
                 <div className="w-full max-w-md flex flex-col gap-8">
-
-                    {/* Mobile-only logo */}
-                    <div className="flex md:hidden items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-md bg-(--color-accent) flex items-center justify-center">
-                            <Ticket size={14} className="text-(--color-accent-text)" strokeWidth={2.5} />
-                        </div>
-                        <span className="text-lg font-extrabold tracking-tight text-(--color-text-primary)" style={{ fontFamily: "var(--font-display)" }}>
-                            Ticketify
-                        </span>
-                    </div>
 
                     {/* Heading */}
                     <div className="flex flex-col gap-1.5">

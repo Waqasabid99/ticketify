@@ -61,6 +61,15 @@ const permissions = [
     { name: "genre:update", description: "Update a genre" },
     { name: "genre:delete", description: "Delete a genre" },
 
+    // ── RATING AND REVIEW ─────────────────────────
+    { name: "review:create", description: "Create a rating and review" },
+    { name: "review:read-own", description: "View own ratings and reviews" },
+    { name: "review:update-own", description: "Update own rating and review" },
+    { name: "review:delete-own", description: "Delete own rating and review" },
+    { name: "review:read-all", description: "List all ratings and reviews" },
+    { name: "review:moderate", description: "Moderate ratings and reviews" },
+    { name: "review:delete", description: "Delete any rating and review" },
+
     // ── SHOW ───────────────────────────────────
     { name: "show:list", description: "List all shows" },
     { name: "show:read", description: "View show details and seat map" },
@@ -159,6 +168,8 @@ const rolePermissionMap = {
         "movie:list", "movie:read", "movie:create", "movie:update",
         "movie:delete", "movie:change-status",
 
+        "review:create", "review:read-all", "review:delete", "review:moderate",
+
         "genre:list", "genre:create", "genre:update", "genre:delete",
 
         "show:list", "show:read", "show:create", "show:update",
@@ -206,6 +217,8 @@ const rolePermissionMap = {
 
         "genre:list", "genre:create", "genre:update",
 
+        "review:read-all", "review:delete", "review:moderate",
+
         "show:list", "show:read", "show:create", "show:update",
         "show:cancel", "show:manage-seats",
 
@@ -247,6 +260,8 @@ const rolePermissionMap = {
 
         "movie:list", "movie:read",
 
+        "review:read-all", "review:moderate",
+
         "genre:list",
 
         "show:list", "show:read",
@@ -279,6 +294,8 @@ const rolePermissionMap = {
         "seat:list", "seat:read",
 
         "movie:list", "movie:read",
+
+        "review:create", "review:read-own", "review:update-own", "review:delete-own",
 
         "genre:list",
 

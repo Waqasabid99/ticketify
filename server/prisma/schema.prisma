@@ -53,6 +53,12 @@ enum MovieStatus {
   ARCHIVED
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum PricingType {
   FIXED
   PERCENTAGE
@@ -160,6 +166,7 @@ model User {
   auditLogs     AuditLog[]
   refreshTokens RefreshToken[]
   couponUsages  CouponUsage[]
+  ratingReviews RatingReview[]
 }
 
 model RefreshToken {
@@ -297,10 +304,11 @@ model Movie {
 
   shows Show[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  casts     Cast[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+  casts         Cast[]
+  ratingReviews RatingReview[]
 }
 
 model Genre {
@@ -329,6 +337,7 @@ model MovieGenre {
 model Cast {
   id        String   @id @default(uuid())
   name      String
+  slug      String   @unique
   imageUrl  String?
   role      String
   movieId   String
@@ -337,6 +346,28 @@ model Cast {
   updatedAt DateTime @updatedAt
 
   @@index([movieId, name])
+}
+
+model RatingReview {
+  id String @id @default(uuid())
+
+  movieId   String
+  userId    String
+  bookingId String?
+  rating    Int
+  review    String?
+  verified  Boolean      @default(false)
+  status    ReviewStatus @default(PENDING)
+  movie     Movie        @relation(fields: [movieId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
+  booking   Booking?     @relation(fields: [bookingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([movieId, userId])
+  @@index([movieId, createdAt])
+  @@index([userId])
 }
 
 model Show {
@@ -434,10 +465,11 @@ model Booking {
 
   payments Payment[]
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  showSeats    ShowSeat[]
-  couponUsages CouponUsage[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  showSeats     ShowSeat[]
+  couponUsages  CouponUsage[]
+  ratingReviews RatingReview[]
 
   @@index([userId])
   @@index([showId])

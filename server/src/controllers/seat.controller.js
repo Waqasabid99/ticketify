@@ -42,6 +42,17 @@ export const getScreenSeats = asyncHandler(async (req, res) => {
     const [seats, total] = await Promise.all([
         prisma.seat.findMany({
             where,
+            include: {
+                showSeats: {
+                    select: {
+                        show: {
+                            select: {
+                                pricingRules: true
+                            }
+                        }
+                    }
+                }
+            },
             skip,
             take: pageSize,
             orderBy: [{ rowLabel: "asc" }, { seatNumber: "asc" }],

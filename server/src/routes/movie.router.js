@@ -11,6 +11,9 @@ import {
     deleteCastByMovieId,
     updateCast,
     getMovieCast,
+    getReleasedMovies,
+    getUpcomingMovies,
+    getPopularMovies,
 } from "../controllers/movie.controller.js";
 import { verifyUser } from "../middleware/verify.middleware.js";
 import { requirePermissions } from "../middleware/acl.middleware.js";
@@ -23,6 +26,9 @@ const movieRouter = express.Router();
 // ─────────────────────────────────────────────────────────────
 
 movieRouter.get("/", getAllMovies);
+movieRouter.get("/now-showing", getReleasedMovies);
+movieRouter.get("/upcoming", getUpcomingMovies);
+movieRouter.get("/popular", getPopularMovies);
 movieRouter.get("/:movieId", getMovieById);
 movieRouter.get("/:movieId/cast", getMovieCast);
 

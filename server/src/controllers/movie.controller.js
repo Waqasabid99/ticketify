@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { MovieStatus } from "../generated/prisma/enums.ts";
+import { MovieStatus, ReviewStatus } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
 import { generateUniqueSlug } from "../utils/helper.js";
@@ -124,6 +124,14 @@ export const getAllMovies = asyncHandler(async (req, res) => {
             where,
             include: {
                 genres: { include: { genre: true } },
+                ratingReviews: {
+                    select: {
+                        rating: true
+                    },
+                    where: {
+                        status: ReviewStatus.APPROVED
+                    }
+                }
             },
             skip,
             take: pageSize,
@@ -162,6 +170,123 @@ export const getMovieById = asyncHandler(async (req, res) => {
     if (!movie) throw ApiError.notFound("Movie not found");
 
     return apiResponse(res, 200, true, "Movie fetched successfully", movie);
+});
+
+// GET UPCOMING MOVIES
+export const getUpcomingMovies = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, search } = req.query;
+
+    const pageNumber = Math.max(1, Number(page) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(limit) || 10));
+    const skip = (pageNumber - 1) * pageSize;
+
+    const where = {
+        deletedAt: null,
+        status: MovieStatus.COMING_SOON,
+    };
+
+    if (search) {
+        where.title = { contains: search, mode: "insensitive" };
+    }
+
+    const [movies, total] = await Promise.all([
+        prisma.movie.findMany({
+            where,
+            include: {
+                genres: { include: { genre: true } },
+            },
+            skip,
+            take: pageSize,
+            orderBy: { releaseDate: "asc" },
+        }),
+        prisma.movie.count({ where }),
+    ]);
+
+    return apiResponse(res, 200, true, "Upcoming movies fetched successfully", {
+        movies,
+        total,
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(total / pageSize),
+    });
+});
+
+// GET RELEASED MOVIES
+export const getReleasedMovies = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, search } = req.query;
+
+    const pageNumber = Math.max(1, Number(page) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(limit) || 10));
+    const skip = (pageNumber - 1) * pageSize;
+
+    const where = {
+        deletedAt: null,
+        status: MovieStatus.NOW_SHOWING,
+    };
+
+    if (search) {
+        where.title = { contains: search, mode: "insensitive" };
+    }
+
+    const [movies, total] = await Promise.all([
+        prisma.movie.findMany({
+            where,
+            include: {
+                genres: { include: { genre: true } },
+            },
+            skip,
+            take: pageSize,
+            orderBy: { releaseDate: "desc" },
+        }),
+        prisma.movie.count({ where }),
+    ]);
+
+    return apiResponse(res, 200, true, "Released movies fetched successfully", {
+        movies,
+        total,
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(total / pageSize),
+    });
+});
+
+// GET POPULAR MOVIES
+export const getPopularMovies = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, search } = req.query;
+
+    const pageNumber = Math.max(1, Number(page) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(limit) || 10));
+    const skip = (pageNumber - 1) * pageSize;
+
+    const where = {
+        deletedAt: null,
+        status: MovieStatus.NOW_SHOWING,
+    };
+
+    if (search) {
+        where.title = { contains: search, mode: "insensitive" };
+    }
+
+    const [movies, total] = await Promise.all([
+        prisma.movie.findMany({
+            where,
+            include: {
+                genres: { include: { genre: true } },
+            },
+            skip,
+            take: pageSize,
+            orderBy: { releaseDate: "desc" },
+        }),
+        prisma.movie.count({ where }),
+    ]);
+
+    return apiResponse(res, 200, true, "Popular movies fetched successfully", {
+        movies,
+        total,
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(total / pageSize),
+    });
 });
 
 // UPDATE MOVIE
@@ -355,25 +480,41 @@ export const addCast = asyncHandler(async (req, res) => {
         if (!member.name || !member.role) {
             throw ApiError.badRequest("Each cast member must have name and role");
         }
+        member.slug = await generateUniqueSlug(member.name, prisma.cast);
     }
 
-    // remove cast members if any
-    await prisma.cast.deleteMany({
-        where: {
-            movieId,
-        },
+    const result = await prisma.$transaction(async (tx) => {
+        await tx.cast.deleteMany({
+            where: { movieId },
+        });
+
+        const created = await tx.cast.createMany({
+            data: cast.map((m) => ({
+                movieId,
+                name: m.name,
+                slug: m.slug,
+                role: m.role,
+                imageUrl: m.imageUrl ?? null,
+            })),
+        });
+
+        await tx.auditLog.create({
+            data: {
+                userId: req?.user?.id,
+                action: "CAST_ADD",
+                entity: "CAST",
+                entityId: movieId,
+                metadata: {
+                    ip: req?.ip,
+                    userAgent: req?.headers["user-agent"],
+                },
+            },
+        });
+
+        return { count: created.count };
     });
 
-    const created = await prisma.cast.createMany({
-        data: cast.map((m) => ({
-            movieId,
-            name: m.name,
-            role: m.role,
-            imageUrl: m.imageUrl ?? null,
-        })),
-    });
-
-    return apiResponse(res, 201, true, "Cast added successfully", { count: created.count });
+    return apiResponse(res, 201, true, "Cast added successfully", result);
 });
 
 // UPDATE CAST
