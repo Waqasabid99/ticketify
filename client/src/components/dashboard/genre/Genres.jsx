@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { createGenre, deleteGenre, updateGenre } from "@/actions/genre.action";
 
 const Genres = ({ genre = [], pagination = {} }) => {
-    const [genresList, setGenresList] = useState(genre);
     const [activeEditGenre, setActiveEditGenre] = useState(null);
     const [activeDeleteGenre, setActiveDeleteGenre] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -71,8 +70,9 @@ const Genres = ({ genre = [], pagination = {} }) => {
         setIsAdding(true);
         try {
             const data = await createGenre(newGenre);
+            router.refresh();
             toast.success(data.message);
-            setGenresList((prev) => [...prev, data.data]);
+            // setGenresList((prev) => [...prev, data.data]);
             setShowAddModal(false);
         } catch (error) {
             toast.error(error.message);
@@ -85,8 +85,9 @@ const Genres = ({ genre = [], pagination = {} }) => {
         setIsEditing(true);
         try {
             const data = await updateGenre(id, updatedFields);
+            router.refresh();
             toast.success(data.message);
-            setGenresList((prev) => prev.map((g) => (g.id === id ? data.data : g)));
+            // setGenresList((prev) => prev.map((g) => (g.id === id ? data.data : g)));
             setActiveEditGenre(null);
         } catch (error) {
             toast.error(error.message);
@@ -99,8 +100,9 @@ const Genres = ({ genre = [], pagination = {} }) => {
         setIsDeleting(true);
         try {
             const data = await deleteGenre(id);
+            router.refresh();
             toast.success(data.message);
-            setGenresList((prev) => prev.filter((g) => g.id !== id));
+            // setGenresList((prev) => prev.filter((g) => g.id !== id));
             setActiveDeleteGenre(null);
         } catch (error) {
             toast.error(error.message);
@@ -110,6 +112,7 @@ const Genres = ({ genre = [], pagination = {} }) => {
     };
 
     const handlePageChange = (page) => {
+        console.log(page);
         router.push(`?page=${page}`);
     };
 
@@ -138,7 +141,7 @@ const Genres = ({ genre = [], pagination = {} }) => {
 
             <Table
                 columns={columns}
-                data={genresList}
+                data={genre}
                 pagination={pagination}
                 onPageChange={handlePageChange}
                 emptyMessage="No genres found."

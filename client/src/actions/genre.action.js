@@ -3,12 +3,13 @@
 import { apiRequest } from "@/api/apiHandler";
 import { revalidateTag } from "next/cache";
 
-export const getGenres = async () => {
+export const getGenres = async (params = {}) => {
     const response = await apiRequest(
         {
             url: "/genres",
             method: "GET",
             withCredentials: false,
+            params,
             cache: "force-cache",
             tags: ["genres"]
         }

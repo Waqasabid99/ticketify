@@ -398,7 +398,7 @@ const Table = ({
                                 <button
                                     key={btn.number}
                                     onClick={() => handlePageChange(btn.number)}
-                                    className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${activePage === btn.number
+                                    className={`px-3 py-1 text-xs font-semibold rounded transition-all ${activePage === btn.number
                                         ? "bg-(--color-accent) text-(--color-accent-text) shadow-sm"
                                         : "border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-surface-hover)"
                                         }`}
