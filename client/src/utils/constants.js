@@ -13,8 +13,8 @@ export const Logo = () => (
 export const NAV_LINKS = [
     { href: "/", label: "Home" },
     { href: "/movies", label: "Movies" },
-    { href: "/genres", label: "Genres" },
-    { href: "/theaters", label: "Theaters" }
+    { href: "#", label: "Genres", children: [] },
+    { href: "/theaters", label: "Theaters", children: [] }
 ];
 
 export const LEGAL_LINKS = [

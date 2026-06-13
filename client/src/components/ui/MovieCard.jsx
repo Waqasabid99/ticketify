@@ -5,11 +5,11 @@ import Link from "next/link";
 const MovieCard = ({ movie }) => {
     return (
         <div href={movie.title} className="w-full">
-            <Link href={`/${movie?.slug}`}>
+            <Link href={`/movie/${movie?.slug}`}>
                 <Image src={movie?.posterUrl} alt={movie?.title} width={180} height={180} />
             </Link>
             <div className="py-3 flex flex-col">
-                <Link href={`/${movie?.slug}`} className="link-logo">
+                <Link href={`/movie/${movie?.slug}`} className="link-logo">
                     <h3 className="text-lg">{movie?.title}</h3>
                 </Link>
                 <div className="flex">

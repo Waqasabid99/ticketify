@@ -8,6 +8,19 @@ export const createGenre = asyncHandler(async (req, res) => {
 
     if (!name) throw ApiError.badRequest("Genre name is required.");
 
+    const existingGenre = await prisma.genre.findFirst({
+        where: {
+            name: {
+                equals: name,
+                mode: "insensitive"
+            }
+        }
+    })
+
+    if (existingGenre) {
+        throw ApiError.badRequest("Genre already exists")
+    }
+
     const slug = await generateUniqueSlug(name, prisma.genre);
 
     const genre = await prisma.genre.create({

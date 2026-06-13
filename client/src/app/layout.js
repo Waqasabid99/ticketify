@@ -3,6 +3,8 @@ import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import Navbar from "@/layout/Navbar";
 import Footer from "@/layout/Footer";
+import { getGenres } from "@/actions/genre.action";
+import CheckAuth from "@/utils/CheckAuth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,20 +21,24 @@ export const metadata = {
   description: "Book your tickets now!",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { genres } = await getGenres();
   return (
     <html
+      suppressHydrationWarning
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <ToastContainer />
       <body className="min-h-full flex flex-col justify-between">
-        <Navbar />
+        {/* <CheckAuth> */}
+        <ToastContainer />
+        <Navbar genres={genres} />
         {children}
         <Footer />
+        {/* </CheckAuth> */}
       </body>
     </html>
   );

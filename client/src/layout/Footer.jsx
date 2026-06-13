@@ -1,5 +1,7 @@
+"use client";
 import { CONTACT_LINKS, LEGAL_LINKS, Logo, NAV_LINKS, SOCIAL_LINKS } from "@/utils/constants"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 const ListComponent = ({ title, links }) => {
     return (
@@ -19,6 +21,11 @@ const ListComponent = ({ title, links }) => {
 }
 
 const Footer = () => {
+    const pathname = usePathname();
+    const isDashboard = pathname?.includes("/dashboard");
+
+    if (isDashboard) return null;
+
     return (
         <footer className="w-full border-y border-border/50">
             <div className="px-6 py-12 sm:px-12 md:px-16 lg:px-24 lg:py-24 w-full flex flex-col lg:flex-row items-start justify-between gap-10">
@@ -55,11 +62,13 @@ const Footer = () => {
 
             <div className="w-full flex flex-col sm:flex-row items-center justify-center py-5 gap-y-2 gap-x-5 border-t text-center">
                 <p className="text-(--color-text-secondary)">
-                    © {new Date().getFullYear()} Ticketify. All rights reserved.
-                </p>
-                <p className="text-(--color-text-secondary)">
-                    Made with <span>❤️</span> by{" "}
-                    <span className="font-bold text-(--color-primary)">Waqas Ali Abid</span>
+                    © {new Date().getFullYear()} Ticketify. All rights reserved. Made with <span>❤️</span> by{" "}
+                    <Link
+                        href="https://waqas-portfolio-psi.vercel.app/"
+                        className="font-bold text-(--color-primary)"
+                    >
+                        Waqas Ali Abid
+                    </Link>
                 </p>
             </div>
         </footer>

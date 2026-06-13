@@ -138,7 +138,7 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                         {/* CTA row */}
                         <div className="flex items-center gap-(--space-3) flex-wrap mt-(--space-2)">
                             <Link
-                                href={`/${movie.slug}/book`}
+                                href={`/movie/${movie.slug}/book`}
                                 className="btn link-button"
                             >
                                 <Ticket size={16} />
@@ -353,7 +353,7 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                     </p>
                     <div className="flex gap-(--space-3) flex-wrap justify-center mt-(--space-2)">
                         <Link
-                            href={`/${movie.slug}/book`}
+                            href={`/movie/${movie.slug}/book`}
                             className="btn link-button"
                         >
                             <Ticket size={18} />

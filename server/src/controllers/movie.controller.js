@@ -97,7 +97,7 @@ export const createMovie = asyncHandler(async (req, res) => {
 
 // GET ALL MOVIES
 export const getAllMovies = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, status, language, search } = req.query;
+    const { page = 1, limit = 10, status, language, search, genreSlug, castSlug } = req.query;
 
     const pageNumber = Math.max(1, Number(page) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(limit) || 10));
@@ -112,6 +112,28 @@ export const getAllMovies = asyncHandler(async (req, res) => {
         }
         where.status = normalized;
     }
+
+    if (genreSlug) {
+        const genre = await prisma.genre.findUnique({
+            where: { slug: genreSlug },
+        });
+
+        if (!genre) {
+            throw ApiError.notFound("Genre not found");
+        }
+
+        where.genres = { some: { genreId: genre.id } };
+    };
+
+    if (castSlug) {
+        const cast = await prisma.cast.findUnique({
+            where: { slug: castSlug },
+        });
+
+        if (!cast) throw ApiError.notFound("Cast not found");
+
+        where.casts = { some: { id: cast.id } };
+    };
 
     if (language) where.language = { equals: language, mode: "insensitive" };
 

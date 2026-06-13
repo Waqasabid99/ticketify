@@ -1,79 +1,59 @@
+import { apiRequest } from "@/api/apiHandler";
+
 export const getMovies = async (searchParams = "") => {
-    try {
-        const res = await fetch(`${process.env.API_BASE_URL}/movies?${searchParams}`, {
+    const res = await apiRequest(
+        {
+            url: "/movies",
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            next: {
-                tags: ["movies"],
-            }
-        })
-
-        if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.message);
+            withCredentials: false,
+            params: searchParams,
+            cache: "force-cache",
+            tags: ["movies"],
         }
+    );
 
-        const { data } = await res.json();
-        const movies = data?.movies;
+    if (!res.success) {
+        throw new Error(res.message)
+    };
 
-        return { movies };
-    } catch (err) {
-        console.log("Error fetching movies : ", err)
-        throw new Error(err.message)
-    }
+    console.log(res.data)
+    return res.data;
 }
 
 export const getMovieBySlug = async (slug) => {
-    try {
-        const res = await fetch(`${process.env.API_BASE_URL}/movies/${slug}`, {
+    const res = await apiRequest(
+        {
+            url: `/movies/${slug}`,
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            next: {
-                tags: ["movies"],
-            }
-        })
-
-        if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.message);
+            withCredentials: false,
+            cache: "force-cache",
+            tags: ["movies"],
         }
+    );
 
-        const { data } = await res.json();
+    if (!res.success) {
+        throw new Error(res.message)
+    };
 
-        return { movie: data };
-    } catch (err) {
-        console.log("Error fetching movie : ", err)
-        throw new Error(err.message)
-    }
+    console.log(res.data)
+    return res.data;
 }
 
 export const getReleasedMovies = async () => {
-    try {
-        const res = await fetch(`${process.env.API_BASE_URL}/movies/now-showing`, {
+    const res = await apiRequest(
+        {
+            url: "/movies/now-showing",
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            next: {
-                tags: ["movies"],
-            }
-        })
-
-        if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.message);
+            withCredentials: false,
+            cache: "force-cache",
+            tags: ["movies"],
         }
+    );
 
-        const { data } = await res.json();
-        const movies = data?.movies;
-
-        return { releasedMovies: movies };
-    } catch (err) {
-        console.log("Error fetching released movies : ", err)
-        throw new Error(err.message)
+    if (!res.success) {
+        throw new Error(res.message)
     }
-}
+
+    console.log("Released movies : ", res?.data?.movies);
+    return res?.data?.movies;
+};

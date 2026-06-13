@@ -7,7 +7,7 @@ import { getSafeUser, verifyAccessToken } from "../utils/helper.js";
 export const verifyUser = asyncHandler(async (req, res, next) => {
     const token = req.cookies?.accessToken;
 
-    if (!token) throw ApiError.badRequest("Unauthorized");
+    if (!token) throw ApiError.unauthorized("Unauthorized");
 
     const decoded = verifyAccessToken(token);
 

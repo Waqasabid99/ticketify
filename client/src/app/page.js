@@ -4,14 +4,24 @@ import Movies from "@/components/home/Movies"
 
 const page = async () => {
   const { movies } = await getMovies();
-  const { releasedMovies } = await getReleasedMovies();
-  console.log(movies)
+  const releasedMovies = await getReleasedMovies();
+
   return (
     <>
-      <Hero movies={movies} />
-      <Movies movies={releasedMovies} title="Now Showing" />
-      <Movies movies={movies} title="Coming Soon" />
-      <Movies movies={movies} title="Events" />
+      {movies?.length > 0 && (
+        <Hero movies={movies} />
+      )}
+
+      {releasedMovies?.length > 0 && (
+        <Movies movies={releasedMovies} title="Now Showing" />
+      )}
+
+      {movies?.length > 0 && (
+        <>
+          <Movies movies={movies} title="Coming Soon" />
+          <Movies movies={movies} title="Events" />
+        </>
+      )}
     </>
   )
 }

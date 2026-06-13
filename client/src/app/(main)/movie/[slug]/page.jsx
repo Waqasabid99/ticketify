@@ -4,13 +4,13 @@ import { generateMovieMetadata } from "@/lib";
 
 export const generateMetadata = async ({ params }) => {
     const { slug } = await params;
-    const { movie } = await getMovieBySlug(slug);
+    const movie = await getMovieBySlug(slug);
     return generateMovieMetadata(movie);
 }
 
 const page = async ({ params }) => {
     const { slug } = await params;
-    const { movie } = await getMovieBySlug(slug);
+    const movie = await getMovieBySlug(slug);
     return (
         <MovieDetailPage movie={movie} />
     )

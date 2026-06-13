@@ -45,13 +45,14 @@ const Hero = ({ movies = [] }) => {
                             <div className="embla__slide relative h-full" key={movie.id}>
                                 {/* ── Banner image ── */}
                                 <Image
-                                    width={1920}
-                                    height={1080}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    priority
+                                    fill
+                                    sizes="100vw"
                                     src={movie.bannerUrl}
                                     alt={movie.title}
-                                    className="absolute inset-0 w-full h-full object-cover object-center"
+                                    className="object-cover object-top"
                                 />
+                                <div className="absolute inset-0 bg-linear-to-b from-black/60 via-transparent to-transparent" />
 
                                 {/* ── Left-to-right gradient scrim ── */}
                                 <div className="absolute inset-0 bg-lineargradient-to-r from-[rgba(10,6,30,0.92)] via-[rgba(10,6,30,0.45)] to-transparent" />
@@ -123,7 +124,7 @@ const Hero = ({ movies = [] }) => {
                                     {/* CTA buttons */}
                                     <div className="flex items-center gap-2 md:gap-3 mt-1 flex-wrap">
                                         <Link
-                                            href={`/${movie.slug}/book`}
+                                            href={`movie/${movie.slug}/book`}
                                             className="link-button btn-sm flex items-center gap-2"
                                         >
                                             <Ticket className="w-4 h-4" />
@@ -143,7 +144,7 @@ const Hero = ({ movies = [] }) => {
                                         )}
 
                                         <Link
-                                            href={`/${movie.slug}`}
+                                            href={`movie/${movie.slug}`}
                                             className="btn btn-ghost btn-sm"
                                         >
                                             More Info

@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -469,7 +468,7 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                                                 <div className="w-6 shrink-0" />
 
                                                 {/* Right block */}
-                                                <div className="flex gap-1.5">
+                                                <div className="flex gap-1.5 ml-0 md:ml-[25%] lg:ml-[30%]">
                                                     {right.map((seat) => (
                                                         <Seat
                                                             key={seat.id}
