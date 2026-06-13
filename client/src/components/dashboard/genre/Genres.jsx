@@ -3,19 +3,25 @@
 import React, { useState } from "react";
 import DashboardBox from "@/components/ui/DashboardBox";
 import Table from "@/components/ui/Table";
-import { Plus, RefreshCw, X } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { createGenre, deleteGenre, updateGenre } from "@/actions/genre.action";
+import { DeleteModal, EditModal, AddModal, FormField, inputClass } from "@/components/ui/Modals";
+
+const emptyForm = { name: "", description: "" };
 
 const Genres = ({ genre = [], pagination = {} }) => {
     const [activeEditGenre, setActiveEditGenre] = useState(null);
     const [activeDeleteGenre, setActiveDeleteGenre] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [addForm, setAddForm] = useState(emptyForm);
+    const [editForm, setEditForm] = useState(emptyForm);
     const [isAdding, setIsAdding] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
+
 
     const columns = [
         {
@@ -66,13 +72,19 @@ const Genres = ({ genre = [], pagination = {} }) => {
         },
     ];
 
-    const handleAddGenre = async (newGenre) => {
+    // Sync edit form when a genre is selected for editing
+    const handleOpenEdit = (item) => {
+        setEditForm({ name: item.name ?? "", description: item.description ?? "" });
+        setActiveEditGenre(item);
+    };
+
+    const handleAddGenre = async () => {
         setIsAdding(true);
         try {
-            const data = await createGenre(newGenre);
+            const data = await createGenre(addForm);
             router.refresh();
             toast.success(data.message);
-            // setGenresList((prev) => [...prev, data.data]);
+            setAddForm(emptyForm);
             setShowAddModal(false);
         } catch (error) {
             toast.error(error.message);
@@ -81,13 +93,12 @@ const Genres = ({ genre = [], pagination = {} }) => {
         }
     };
 
-    const handleSaveEdit = async (id, updatedFields) => {
+    const handleSaveEdit = async () => {
         setIsEditing(true);
         try {
-            const data = await updateGenre(id, updatedFields);
+            const data = await updateGenre(activeEditGenre.id, editForm);
             router.refresh();
             toast.success(data.message);
-            // setGenresList((prev) => prev.map((g) => (g.id === id ? data.data : g)));
             setActiveEditGenre(null);
         } catch (error) {
             toast.error(error.message);
@@ -102,7 +113,6 @@ const Genres = ({ genre = [], pagination = {} }) => {
             const data = await deleteGenre(id);
             router.refresh();
             toast.success(data.message);
-            // setGenresList((prev) => prev.filter((g) => g.id !== id));
             setActiveDeleteGenre(null);
         } catch (error) {
             toast.error(error.message);
@@ -112,7 +122,6 @@ const Genres = ({ genre = [], pagination = {} }) => {
     };
 
     const handlePageChange = (page) => {
-        console.log(page);
         router.push(`?page=${page}`);
     };
 
@@ -146,29 +155,65 @@ const Genres = ({ genre = [], pagination = {} }) => {
                 onPageChange={handlePageChange}
                 emptyMessage="No genres found."
                 searchPlaceholder="Search genres by name, slug or description..."
-                onEdit={(item) => setActiveEditGenre(item)}
+                onEdit={handleOpenEdit}
                 onDelete={(item) => setActiveDeleteGenre(item)}
             />
 
             {showAddModal && (
-                <AddGenreModal
-                    onClose={() => setShowAddModal(false)}
+                <AddModal
+                    title="Genre"
+                    onClose={() => { setShowAddModal(false); setAddForm(emptyForm); }}
                     onSave={handleAddGenre}
                     isAdding={isAdding}
-                />
+                >
+                    <FormField label="Name">
+                        <input
+                            className={inputClass}
+                            placeholder="e.g. Science Fiction"
+                            value={addForm.name}
+                            onChange={(e) => setAddForm((p) => ({ ...p, name: e.target.value }))}
+                        />
+                    </FormField>
+                    <FormField label="Description">
+                        <textarea
+                            className={`${inputClass} resize-none`}
+                            rows={3}
+                            placeholder="Optional description..."
+                            value={addForm.description}
+                            onChange={(e) => setAddForm((p) => ({ ...p, description: e.target.value }))}
+                        />
+                    </FormField>
+                </AddModal>
             )}
 
             {activeEditGenre && (
-                <EditGenreModal
-                    item={activeEditGenre}
+                <EditModal
+                    title="Genre"
                     onClose={() => setActiveEditGenre(null)}
-                    onSave={(updatedFields) => handleSaveEdit(activeEditGenre.id, updatedFields)}
+                    onSave={handleSaveEdit}
                     isEditing={isEditing}
-                />
+                >
+                    <FormField label="Name">
+                        <input
+                            className={inputClass}
+                            value={editForm.name}
+                            onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
+                        />
+                    </FormField>
+                    <FormField label="Description">
+                        <textarea
+                            className={`${inputClass} resize-none`}
+                            rows={3}
+                            value={editForm.description}
+                            onChange={(e) => setEditForm((p) => ({ ...p, description: e.target.value }))}
+                        />
+                    </FormField>
+                </EditModal>
             )}
 
             {activeDeleteGenre && (
-                <DeleteGenreModal
+                <DeleteModal
+                    title="Genre"
                     item={activeDeleteGenre}
                     onClose={() => setActiveDeleteGenre(null)}
                     onConfirm={() => handleDeleteGenre(activeDeleteGenre.id)}
@@ -178,148 +223,5 @@ const Genres = ({ genre = [], pagination = {} }) => {
         </div>
     );
 };
-
-// ─── Shared Modal Shell ────────────────────────────────────────────────────────
-
-const ModalShell = ({ title, onClose, children }) => (
-    <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className="w-full max-w-md bg-(--color-bg-surface) border border-(--color-border-default) rounded-xl shadow-2xl p-6 relative animate-in fade-in zoom-in-95 duration-150">
-            <button
-                onClick={onClose}
-                className="absolute right-4 top-4 text-(--color-text-muted) hover:text-(--color-text-primary) p-1 rounded-lg hover:bg-(--color-surface-hover) transition-all"
-            >
-                <X className="w-4 h-4" />
-            </button>
-            <h3 className="text-lg font-bold mb-4 text-(--color-text-primary)">{title}</h3>
-            {children}
-        </div>
-    </div>
-);
-
-// ─── Shared Form Field ─────────────────────────────────────────────────────────
-
-const inputClass =
-    "w-full px-3.5 py-2.5 rounded-lg bg-(--color-surface-raised) border border-(--color-border-default) text-(--color-text-primary) placeholder-(--color-text-muted) focus:outline-none focus:border-(--color-border-accent) transition-all text-sm";
-
-const FormField = ({ label, children }) => (
-    <div>
-        <label className="block text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider mb-2">
-            {label}
-        </label>
-        {children}
-    </div>
-);
-
-// ─── Modals ────────────────────────────────────────────────────────────────────
-
-const AddGenreModal = ({ onClose, onSave, isAdding }) => {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!name.trim()) return;
-        onSave({ name, description });
-    };
-
-    return (
-        <ModalShell title="Add Genre" onClose={onClose}>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <FormField label="Name">
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        placeholder="e.g. Action, Sci-Fi"
-                        className={inputClass}
-                    />
-                </FormField>
-                <FormField label="Description">
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={3}
-                        placeholder="Describe the genre..."
-                        className={`${inputClass} resize-none`}
-                    />
-                </FormField>
-                <ModalActions onClose={onClose} isLoading={isAdding} label="Create Genre" loadingLabel="Creating..." />
-            </form>
-        </ModalShell>
-    );
-};
-
-const EditGenreModal = ({ item, onClose, onSave, isEditing }) => {
-    const [name, setName] = useState(item.name);
-    const [description, setDescription] = useState(item.description || "");
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!name.trim()) return;
-        onSave({ name, description });
-    };
-
-    return (
-        <ModalShell title="Edit Genre" onClose={onClose}>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <FormField label="Name">
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className={inputClass}
-                    />
-                </FormField>
-                <FormField label="Description">
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={3}
-                        className={`${inputClass} resize-none`}
-                    />
-                </FormField>
-                <ModalActions onClose={onClose} isLoading={isEditing} label="Save Changes" loadingLabel="Saving..." />
-            </form>
-        </ModalShell>
-    );
-};
-
-const DeleteGenreModal = ({ item, onClose, onConfirm, isDeleting }) => (
-    <ModalShell title="Delete Genre" onClose={onClose}>
-        <p className="text-sm text-(--color-text-secondary) mb-5">
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-(--color-text-primary)">{item.name}</span>?
-            This action cannot be undone.
-        </p>
-        <div className="flex justify-end gap-2.5">
-            <button type="button" onClick={onClose} className="btn btn-ghost btn-sm text-sm">
-                Cancel
-            </button>
-            <button
-                type="button"
-                onClick={onConfirm}
-                disabled={isDeleting}
-                className="btn btn-danger btn-sm text-sm"
-            >
-                {isDeleting ? "Deleting..." : "Delete Genre"}
-            </button>
-        </div>
-    </ModalShell>
-);
-
-// ─── Shared Modal Footer Actions ───────────────────────────────────────────────
-
-const ModalActions = ({ onClose, isLoading, label, loadingLabel }) => (
-    <div className="flex justify-end gap-2.5 pt-2">
-        <button type="button" onClick={onClose} className="btn btn-ghost btn-sm text-sm">
-            Cancel
-        </button>
-        <button type="submit" disabled={isLoading} className="btn btn-primary btn-sm text-sm">
-            {isLoading ? loadingLabel : label}
-        </button>
-    </div>
-);
 
 export default Genres;
