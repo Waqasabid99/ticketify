@@ -97,6 +97,8 @@ export const getAllScreens = asyncHandler(async (req, res) => {
     return apiResponse(res, 200, true, "Screens fetched successfully",
         {
             screens,
+            screenType: Object.values(screenType),
+            seatType: Object.values(SeatType),
             total,
             page: pageNumber,
             limit: pageSize,

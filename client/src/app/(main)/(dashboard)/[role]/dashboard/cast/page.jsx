@@ -1,4 +1,9 @@
-import React from 'react'
+export const generateMetadata = async () => {
+    return {
+        title: "Cast - Dashboard",
+        description: "Manage cast",
+    }
+}
 
 const page = () => {
     return (

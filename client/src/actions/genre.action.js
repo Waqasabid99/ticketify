@@ -34,10 +34,8 @@ export const createGenre = async (genre) => {
     );
 
     if (!response.success) {
-        console.log(response)
         throw new Error(response.message);
     };
-    console.log(response.data)
 
     revalidateTag("genres", "max", 1);
 
@@ -56,10 +54,8 @@ export const updateGenre = async (id, genre) => {
     );
 
     if (!response.success) {
-        console.log(response)
         throw new Error(response.message);
     };
-    console.log(response.data)
 
     revalidateTag("genres", "max", 1);
 
@@ -77,10 +73,8 @@ export const deleteGenre = async (id) => {
     );
 
     if (!response.success) {
-        console.log(response)
         throw new Error(response.message);
     };
-    console.log(response.data)
 
     revalidateTag("genres", "max", 1);
 

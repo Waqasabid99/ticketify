@@ -379,14 +379,14 @@ const Table = ({
             </div>
 
             {/* Pagination Controls */}
-            {computedTotalPages > 1 && (
+            {computedTotalPages >= 1 && (
                 <div className="flex items-center justify-between mt-2 px-1">
                     <p className="text-xs text-(--color-text-muted)">{metaText}</p>
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => handlePageChange(activePage - 1)}
                             disabled={activePage === 1}
-                            className="p-1.5 rounded-lg border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-surface-hover) disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--color-text-secondary) transition-all"
+                            className="p-1.5 rounded border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-surface-hover) disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--color-text-secondary) transition-all"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -411,7 +411,7 @@ const Table = ({
                         <button
                             onClick={() => handlePageChange(activePage + 1)}
                             disabled={activePage === computedTotalPages}
-                            className="p-1.5 rounded-lg border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-surface-hover) disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--color-text-secondary) transition-all"
+                            className="p-1.5 rounded border border-(--color-border-default) bg-(--color-bg-surface) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-surface-hover) disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--color-text-secondary) transition-all"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </button>

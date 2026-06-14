@@ -1,18 +1,14 @@
 import { cookies } from "next/headers";
+
 export const apiRequest = async ({
     url,
     method = "GET",
     data = null,
     params = {},
-
-    // auth
     withCredentials = false,
-
-    // cache control
     cache = "force-cache",
     revalidate,
     tags = [],
-
     headers = {},
 }) => {
 
@@ -32,30 +28,38 @@ export const apiRequest = async ({
 
     try {
 
+        const isFormData = data instanceof FormData;
+
         const requestHeaders = {
-            ...(data && {
+            ...(!isFormData && data && {
                 "Content-Type": "application/json",
             }),
 
             ...headers,
         };
 
-        // Forward cookies for SSR authenticated requests
+
         if (withCredentials) {
             const cookieStore = await cookies();
+
             requestHeaders.Cookie =
                 cookieStore.toString();
         }
 
+
         const response = await fetch(fullUrl, {
             method,
+
             headers: requestHeaders,
+
             body:
                 data
-                    ? JSON.stringify(data)
+                    ? (
+                        isFormData
+                            ? data
+                            : JSON.stringify(data)
+                    )
                     : undefined,
-
-            // Next.js caching control
 
             cache,
 
@@ -71,40 +75,29 @@ export const apiRequest = async ({
                             tags,
                         }),
                     },
-
         });
 
-        const result = await response.json();
-        if (!response.ok) {
 
+        const result = await response.json();
+
+        if (!response.ok) {
             throw {
                 status: response.status,
-                message:
-                    result?.message ||
-                    "API request failed",
+                message: result?.message || "API request failed",
                 data: result,
             };
-
         }
 
+
         return result;
+
     } catch (error) {
+
         return {
-
             success: false,
-
-            status:
-                error?.status ||
-                500,
-
-            message:
-                error?.message ||
-                "Something went wrong",
-
-            data:
-                error?.data ||
-                null,
+            status: error?.status || 500,
+            message: error?.message || "Something went wrong",
+            data: error?.data || null,
         };
-
     }
 };

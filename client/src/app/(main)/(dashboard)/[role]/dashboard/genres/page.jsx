@@ -3,8 +3,8 @@ import Genres from "@/components/dashboard/genre/Genres";
 
 export const generateMetadata = () => {
     return {
-        title: "Genres - Ticketify Dashboard",
-        description: "Genres - Ticketify Dashboard",
+        title: "Genres - Dashboard",
+        description: "Manage genres",
     };
 };
 
@@ -19,7 +19,7 @@ const page = async ({ searchParams }) => {
         total: data?.total,
         totalPages: data?.totalPages,
     }
-    console.log(data)
+
     return (
         <Genres genre={data?.genres} pagination={pagination} />
     )

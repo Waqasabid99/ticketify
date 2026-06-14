@@ -22,7 +22,6 @@ const Genres = ({ genre = [], pagination = {} }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
 
-
     const columns = [
         {
             key: "name",
@@ -131,7 +130,7 @@ const Genres = ({ genre = [], pagination = {} }) => {
                 text="Genres"
                 subHeading="Manage movie categories and classifications"
                 button={
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <button
                             onClick={() => setShowAddModal(true)}
                             className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-md"

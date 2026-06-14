@@ -8,6 +8,18 @@ export const createCinema = asyncHandler(async (req, res) => {
 
     if (!name || !address) throw ApiError.badRequest("Name and Address is required");
 
+    const existingCinema = await prisma.cinema.findFirst({
+        where: {
+            name: {
+                equals: name,
+                mode: "insensitive"
+            },
+            deletedAt: null,
+        },
+    });
+
+    if (existingCinema) throw ApiError.badRequest("Cinema already exists");
+
     const slug = await generateUniqueSlug(name, prisma.cinema, null, null);
 
     const cinema = await prisma.cinema.create({

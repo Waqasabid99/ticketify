@@ -62,6 +62,8 @@ export const getScreenSeats = asyncHandler(async (req, res) => {
 
     return apiResponse(res, 200, true, "Seats fetched successfully", {
         seats,
+        seatType: Object.values(SeatType),
+        status: Object.values(SeatStatus),
         total,
         page: pageNumber,
         limit: pageSize,

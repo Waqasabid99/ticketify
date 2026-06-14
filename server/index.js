@@ -21,6 +21,7 @@ import bookingRouter from "./src/routes/booking.routes.js";
 import ticketRouter from "./src/routes/ticket.routes.js";
 import paymentRouter from "./src/routes/payment.router.js";
 import analyticsRouter from "./src/routes/analytics.router.js";
+import enumRouter from "./src/routes/enum.router.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -86,6 +87,7 @@ app.use(`${API_VERSION}/coupons`, couponRouter);
 app.use(`${API_VERSION}/bookings`, bookingRouter);
 app.use(`${API_VERSION}/tickets`, ticketRouter);
 app.use(`${API_VERSION}/analytics`, analyticsRouter);
+app.use(`${API_VERSION}/enums`, enumRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
