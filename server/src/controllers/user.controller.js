@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { UserStatus } from "../generated/prisma/enums.ts";
+import { UserRole, UserStatus } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
 import { getSafeUser, hashPassword } from "../utils/helper.js";
@@ -267,6 +267,10 @@ export const updateUserStatus = asyncHandler(async (req, res) => {
 
     if (!allowedStatuses.includes(status.toUpperCase())) {
         throw ApiError.badRequest("Invalid status");
+    }
+
+    if (existingUser.role === UserRole.OWNER || existingUser.role === UserRole.MANAGER) {
+        throw ApiError.badRequest("You cannot update the status of owner or manager");
     }
 
     const user = await prisma.user.update({

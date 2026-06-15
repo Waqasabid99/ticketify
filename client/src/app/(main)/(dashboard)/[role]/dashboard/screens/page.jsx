@@ -15,7 +15,7 @@ const page = async ({ searchParams }) => {
     const limit = params?.limit || 10;
     const theaters = await getTheaters();
     const screens = await getScreens({ page, limit });
-    console.log(screens)
+
     const pagination = {
         page: screens?.page,
         limit: screens?.limit,

@@ -33,7 +33,7 @@ export const addCast = async (payload) => {
 
 export const updateCast = async (payload) => {
     const response = await apiRequest({
-        url: `/movies/${payload.movieId}/cast`,
+        url: `/movies/${payload.movieId}/cast/${payload.castId}`,
         method: "PATCH",
         data: payload,
         withCredentials: true
@@ -56,6 +56,18 @@ export const deleteCast = async (payload) => {
 
     revalidateTag("cast", "max", 1);
 
+    if (!response.success) throw new Error(response.message);
+    console.log(response.data);
+    return response.data;
+};
+
+export const removeCastMember = async (payload) => {
+    const response = await apiRequest({
+        url: `/movies/${payload.movieId}/cast/${payload.castId}`,
+        method: "DELETE",
+        withCredentials: true,
+    });
+    revalidateTag("cast", "max", 1);
     if (!response.success) throw new Error(response.message);
     console.log(response.data);
     return response.data;

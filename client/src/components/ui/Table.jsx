@@ -25,6 +25,7 @@ const Table = ({
     onEdit,
     onDelete,
     onView,
+    extraActions,
 
     // Modal Components (Optional inline modal management)
     EditModal,
@@ -307,6 +308,9 @@ const Table = ({
                                                         <button onClick={() => triggerDelete(item)} className="p-1.5 rounded text-(--color-danger) hover:text-(--color-danger-hover) hover:bg-(--color-bg-danger) transition-all duration-150" title="Delete">
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
+                                                    )}
+                                                    {extraActions && (
+                                                        <>{extraActions(item)}</>
                                                     )}
                                                 </div>
                                             </td>

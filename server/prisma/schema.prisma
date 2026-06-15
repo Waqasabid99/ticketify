@@ -53,6 +53,20 @@ enum MovieStatus {
   ARCHIVED
 }
 
+enum CastRole {
+  LEAD
+  SUPPORTING
+  DIRECTOR
+  WRITER
+  PRODUCER
+  EDITOR
+  CINEMATOGRAPHER
+  MUSIC_DIRECTOR
+  LYRICIST
+  PASTE
+  ACTOR
+}
+
 enum ReviewStatus {
   PENDING
   APPROVED
@@ -339,7 +353,7 @@ model Cast {
   name      String
   slug      String   @unique
   imageUrl  String?
-  role      String
+  role      CastRole @default(ACTOR)
   movieId   String
   movie     Movie    @relation(fields: [movieId], references: [id])
   createdAt DateTime @default(now())

@@ -15,8 +15,6 @@ const page = async () => {
         getEnums("movieStatus"),
     ])
 
-    console.log("Genres Data: ", genresData);
-    console.log("Status Data: ", statusData);
     return (
         <AddMovie genres={genresData?.genres} status={statusData} />
     )

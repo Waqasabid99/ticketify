@@ -1,4 +1,4 @@
-import { BookingSource, BookingStatus, CouponType, MovieStatus, NotificationType, PaymentStatus, PricingType, RefundStatus, ReviewStatus, screenType, SeatStatus, SeatType, ShowSeatStatus, ShowStatus, TicketStatus, UserRole, UserStatus } from "../generated/prisma/enums.ts";
+import { BookingSource, BookingStatus, CastRole, CouponType, MovieStatus, NotificationType, PaymentStatus, PricingType, RefundStatus, ReviewStatus, screenType, SeatStatus, SeatType, ShowSeatStatus, ShowStatus, TicketStatus, UserRole, UserStatus } from "../generated/prisma/enums.ts";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiResponse } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
@@ -12,6 +12,8 @@ export const getEnum = asyncHandler(async (req, res) => {
             return apiResponse(res, 200, true, "User roles fetched successfully", Object.values(UserRole));
         case "movieStatus":
             return apiResponse(res, 200, true, "Movie statuses fetched successfully", Object.values(MovieStatus));
+        case "castRole":
+            return apiResponse(res, 200, true, "Cast roles fetched successfully", Object.values(CastRole));
         case "seatStatus":
             return apiResponse(res, 200, true, "Seat statuses fetched successfully", Object.values(SeatStatus));
         case "seatType":

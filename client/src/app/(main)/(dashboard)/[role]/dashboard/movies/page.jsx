@@ -19,6 +19,7 @@ const page = async ({ searchParams }) => {
         total: data?.total,
         totalPages: data?.totalPages,
     }
+
     return (
         <Movies
             movies={data.movies}

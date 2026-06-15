@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { MovieStatus, ReviewStatus } from "../generated/prisma/enums.ts";
+import { CastRole, MovieStatus, ReviewStatus } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
 import { generateUniqueSlug } from "../utils/helper.js";
@@ -502,21 +502,23 @@ export const addCast = asyncHandler(async (req, res) => {
         if (!member.name || !member.role) {
             throw ApiError.badRequest("Each cast member must have name and role");
         }
+
+        const normalizedRole = member.role.toUpperCase();
+        if (!Object.values(CastRole).includes(normalizedRole)) {
+            throw ApiError.badRequest(`Invalid role. Must be one of: ${Object.values(CastRole).join(", ")}`);
+        };
+        member.role = normalizedRole;
         member.slug = await generateUniqueSlug(member.name, prisma.cast);
     }
 
     const result = await prisma.$transaction(async (tx) => {
-        await tx.cast.deleteMany({
-            where: { movieId },
-        });
-
         const created = await tx.cast.createMany({
             data: cast.map((m) => ({
                 movieId,
                 name: m.name,
                 slug: m.slug,
                 role: m.role,
-                imageUrl: m.imageUrl ?? null,
+                imageUrl: null,
             })),
         });
 
@@ -552,15 +554,43 @@ export const updateCast = asyncHandler(async (req, res) => {
     });
     if (!member) throw ApiError.notFound("Cast member not found");
 
-    const updated = await prisma.cast.update({
-        where: { id: castId },
-        data: {
-            name: name ?? member.name,
-            role: role ?? member.role,
-        },
+    let updatedData = {};
+
+    if (role) {
+        const normalizedRole = role.toUpperCase();
+        if (!Object.values(CastRole).includes(normalizedRole)) {
+            throw ApiError.badRequest(`Invalid role. Must be one of: ${Object.values(CastRole).join(", ")}`);
+        };
+        updatedData.role = normalizedRole;
+    }
+
+    if (name) {
+        updatedData.name = name;
+        updatedData.slug = await generateUniqueSlug(name, prisma.cast, castId);
+    }
+    const result = await prisma.$transaction(async (tx) => {
+        const updated = await tx.cast.update({
+            where: { id: castId },
+            data: updatedData,
+        });
+
+        await tx.auditLog.create({
+            data: {
+                userId: req?.user?.id,
+                action: "CAST_UPDATE",
+                entity: "CAST",
+                entityId: movieId,
+                metadata: {
+                    ip: req?.ip,
+                    userAgent: req?.headers["user-agent"],
+                },
+            },
+        });
+
+        return updated;
     });
 
-    return apiResponse(res, 200, true, "Cast updated successfully", updated);
+    return apiResponse(res, 200, true, "Cast updated successfully", result);
 });
 
 // DELETE CAST MEMBER

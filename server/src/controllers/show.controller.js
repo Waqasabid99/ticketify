@@ -197,6 +197,10 @@ export const getAllShows = asyncHandler(async (req, res) => {
 
     return apiResponse(res, 200, true, "Shows fetched successfully", {
         shows: shows,
+        showSeatStatus: Object.values(ShowSeatStatus),
+        showStatus: Object.values(ShowStatus),
+        movieStatus: Object.values(MovieStatus),
+        seatStatus: Object.values(SeatStatus),
         totalShows: count,
         pageNumber,
         pageSize,

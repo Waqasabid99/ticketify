@@ -1,3 +1,7 @@
+import { getEnums } from "@/actions/enum.action"
+import { getMovies } from "@/actions/movies.action"
+import Casts from "@/components/dashboard/cast/Casts"
+
 export const generateMetadata = async () => {
     return {
         title: "Cast - Dashboard",
@@ -5,10 +9,15 @@ export const generateMetadata = async () => {
     }
 }
 
-const page = () => {
+const page = async () => {
+    const [movieData, roles] = await Promise.all([
+        getMovies(),
+        getEnums("castRole"),
+    ]);
+
     return (
-        <div>page</div>
+        <Casts movies={movieData?.movies} roleOptions={roles} />
     )
 }
 
-export default page
+export default page;
