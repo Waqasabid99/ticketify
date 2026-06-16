@@ -9,7 +9,6 @@ export const getMyTickets = async (params = {}) => {
         method: "GET",
         params,
         withCredentials: true,
-        cache: "force-store",
         tags: ["tickets"],
     });
 

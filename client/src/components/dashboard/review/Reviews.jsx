@@ -322,8 +322,9 @@ const Reviews = ({
         if (!addForm.movieId) return toast.error("Please select a movie.");
         setIsAdding(true);
         try {
-            const ok = await createReview(addForm);
-            if (!ok) throw new Error("Failed to submit review.");
+            const response = await createReview(addForm);
+            console.log(response)
+            if (response) throw new Error(response.message);
             router.refresh();
             toast.success("Review submitted. It will appear after approval.");
             setAddForm({ movieId: "", rating: 5, review: "" });
@@ -352,10 +353,12 @@ const Reviews = ({
         }
     };
 
+    console.log("IsAdmin", isAdmin)
     const handleDeleteReview = async () => {
         setIsDeleting(true);
         try {
             if (isAdmin) {
+                console.log("Active Delete", activeDeleteReview)
                 const ok = await deleteReviewByAdmin(activeDeleteReview.id);
                 if (!ok) throw new Error("Failed to delete review.");
             } else {

@@ -2,7 +2,7 @@ import prisma from "../config/prisma.js";
 import { UserRole, UserStatus } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
-import { getSafeUser, hashPassword } from "../utils/helper.js";
+import { comparePassword, getSafeUser, hashPassword } from "../utils/helper.js";
 
 const DEFAULT_PASSWORD = process.env.DEFAULT_PASSWORD || "User123!";
 
@@ -166,23 +166,10 @@ export const createUser = asyncHandler(async (req, res) => {
 
 export const updateUser = asyncHandler(async (req, res) => {
     const { userId } = req.params;
-    const { firstName, lastName, email, phone, verified, verificationToken, verificationExpiry } = req.body;
+    const { firstName, lastName, phone, verified, verificationToken, verificationExpiry, password } = req.body;
+    let { email } = req.body;
 
     if (!userId) throw ApiError.badRequest("User ID is required");
-
-    let updateData = {};
-
-    if (firstName) updateData.firstName = firstName.trim();
-    if (lastName) updateData.lastName = lastName.trim();
-    if (email) updateData.email = email.trim().toLowerCase();
-    if (phone) updateData.phone = phone.trim();
-    if (verified !== undefined) updateData.emailVerified = Boolean(verified);
-    if (verificationToken !== undefined) updateData.emailVerificationToken = verificationToken;
-    if (verificationExpiry !== undefined) updateData.emailVerificationExpiry = new Date(verificationExpiry);
-
-    if (Object.keys(updateData).length === 0) {
-        throw ApiError.badRequest("No fields provided for update");
-    }
 
     const existingUser = await prisma.user.findFirst({
         where: {
@@ -192,6 +179,25 @@ export const updateUser = asyncHandler(async (req, res) => {
     });
 
     if (!existingUser) throw ApiError.notFound("User not found");
+
+    let updateData = {};
+
+    if (firstName) updateData.firstName = firstName.trim();
+    if (lastName) updateData.lastName = lastName.trim();
+    if (password) {
+        const isSamePassword = await comparePassword(password, existingUser.passwordHash);
+        if (isSamePassword) throw ApiError.badRequest("Password is same as old password");
+        updateData.passwordHash = await hashPassword(password.trim());
+    }
+    if (email) updateData.email = email.trim().toLowerCase();
+    if (phone) updateData.phone = phone.trim();
+    if (verified !== undefined) updateData.emailVerified = Boolean(verified);
+    if (verificationToken !== undefined) updateData.emailVerificationToken = verificationToken;
+    if (verificationExpiry !== undefined) updateData.emailVerificationExpiry = new Date(verificationExpiry);
+
+    if (Object.keys(updateData).length === 0) {
+        throw ApiError.badRequest("No fields provided for update");
+    }
 
     const user = await prisma.user.update({
         where: { id: userId },

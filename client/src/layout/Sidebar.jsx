@@ -24,6 +24,15 @@ import {
     BookUser
 } from "lucide-react";
 
+// Items shown to CUSTOMER role only — no operational/admin pages
+const CUSTOMER_ONLY_ITEMS = new Set([
+    "Overview",
+    "Tickets",
+    "Bookings",
+    "Reviews",
+    "Settings",
+]);
+
 const Sidebar = ({ isOpen, onClose }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { user, role, permissions, logout } = useAuthStore();
@@ -61,6 +70,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                 return "bg-(--color-success-dim) text-(--color-success) border border-success/20";
         }
     };
+
+    const isCustomer = role?.toUpperCase() === "CUSTOMER";
 
     // Define all sidebar items with their paths, icons, and required permissions
     const sidebarItems = [
@@ -110,19 +121,16 @@ const Sidebar = ({ isOpen, onClose }) => {
             name: "Tickets",
             href: `/${role?.toLowerCase()}/dashboard/tickets`,
             icon: Ticket,
-            // permission: "ticket:read-all",
         },
         {
             name: "Bookings",
             href: `/${role?.toLowerCase()}/dashboard/bookings`,
             icon: BookUser,
-            // permission: "ticket:read-all",
         },
         {
             name: "Coupon",
             href: `/${role?.toLowerCase()}/dashboard/coupons`,
             icon: PercentCircle,
-            // permission: "discount:list",
         },
         {
             name: "Reviews",
@@ -144,8 +152,13 @@ const Sidebar = ({ isOpen, onClose }) => {
         },
     ];
 
-    // Filter items based on user permissions
-    const filteredItems = sidebarItems.filter(item => {
+    // Filter items:
+    // - Customers: only show items in CUSTOMER_ONLY_ITEMS (ignore permissions entirely)
+    // - Everyone else: filter by permission as before
+    const filteredItems = sidebarItems.filter((item) => {
+        if (isCustomer) {
+            return CUSTOMER_ONLY_ITEMS.has(item.name);
+        }
         if (!item.permission) return true;
         return permissions?.includes(item.permission);
     });
@@ -169,13 +182,13 @@ const Sidebar = ({ isOpen, onClose }) => {
             <aside
                 className={`
                     fixed md:sticky top-0 left-0 h-screen bg-(--color-surface) border-r border-(--color-border-subtle)
-                    transition-all duration-300 flex flex-col justify-between z-50 md:z-30 shrink-0
+                    transition-all duration-300 flex flex-col justify-between z-50 md:z-30 shrink-0 overflow-hidden
                     ${isCollapsed ? "md:w-[80px]" : "w-[260px] md:w-[260px]"}
                     ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
                 `}
             >
                 {/* Header Section */}
-                <div className="flex items-center justify-between px-4 py-5 border-b border-(--color-border-subtle) h-[73px]">
+                <div className="flex items-center justify-between px-4 py-5 border-b border-(--color-border-subtle) h-[73px] shrink-0">
                     <div className={`flex items-center gap-2 overflow-hidden ${isCollapsed ? "md:justify-center md:w-full" : ""}`}>
                         <Ticket
                             size={28}
@@ -196,7 +209,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <button
                         onClick={toggleCollapse}
                         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                        className="hidden md:flex p-1.5 rounded-md hover:bg-(--color-surface-hover) text-(--color-text-muted) hover:text-(--color-text-primary) border border-transparent hover:border-(--color-border-default) transition-colors"
+                        className={`
+                            hidden md:flex p-1.5 rounded-md hover:bg-(--color-surface-hover)
+                            text-(--color-text-muted) hover:text-(--color-text-primary)
+                            border border-transparent hover:border-(--color-border-default) transition-colors shrink-0
+                            ${isCollapsed ? "mx-auto" : ""}
+                        `}
                     >
                         {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                     </button>
@@ -212,7 +230,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Navigation Items */}
-                <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1.5 scrollbar-thin">
+                <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-1.5 scrollbar-thin">
                     {filteredItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = item.name === "Overview"
@@ -225,34 +243,46 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 href={item.href}
                                 onClick={onClose}
                                 className={`
-                                    flex items-center link-logo gap-3 px-3 py-3 rounded-md font-medium text-[14px]
+                                    flex items-center gap-3 px-3 py-3 rounded-md font-medium text-[14px]
                                     transition-all duration-200 group relative
                                     ${isActive
                                         ? "bg-(--color-accent-dim) text-(--color-accent) border-l-[3px] border-(--color-accent) pl-[9px]"
                                         : "text-(--color-text-secondary) hover:bg-(--color-surface-hover) hover:text-(--color-text-primary)"
                                     }
-                                    ${isCollapsed ? "md:justify-center md:px-0 md:pl-0 md:border-l-0 md:after:content-['']" : ""}
+                                    ${isCollapsed ? "md:justify-center md:px-0 md:pl-0 md:border-l-0 md:w-[56px] md:mx-auto" : ""}
                                 `}
                             >
                                 <Icon
                                     size={20}
                                     className={`shrink-0 transition-transform duration-200 group-hover:scale-105 ${isActive ? "text-(--color-accent)" : "text-(--color-text-muted) group-hover:text-(--color-text-primary)"}`}
                                 />
-                                <span
-                                    className={`
-                                        whitespace-nowrap transition-all duration-300
-                                        ${isCollapsed ? "md:absolute md:left-full md:ml-4 md:px-2 md:py-1 md:bg-(--color-surface-raised) md:border md:border-(--color-border-strong) md:rounded-md md:shadow-md md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:translate-x-2 md:z-50" : ""}
-                                    `}
-                                >
-                                    {item.name}
-                                </span>
+                                {/* Label: visible when expanded; tooltip when collapsed */}
+                                {!isCollapsed && (
+                                    <span className="whitespace-nowrap">
+                                        {item.name}
+                                    </span>
+                                )}
+                                {isCollapsed && (
+                                    <span
+                                        className="
+                                            absolute left-full ml-3 px-2 py-1 whitespace-nowrap
+                                            bg-(--color-surface-raised) border border-(--color-border-strong)
+                                            rounded-md shadow-md text-[13px] font-medium text-(--color-text-primary)
+                                            opacity-0 pointer-events-none -translate-x-1
+                                            group-hover:opacity-100 group-hover:translate-x-0
+                                            transition-all duration-150 z-50
+                                        "
+                                    >
+                                        {item.name}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}
                 </nav>
 
                 {/* Footer Section (User Info & Logout) */}
-                <div className="p-4 border-t border-(--color-border-subtle) bg-(--color-surface-raised) md:bg-transparent">
+                <div className="p-4 border-t border-(--color-border-subtle) bg-(--color-surface-raised) md:bg-transparent shrink-0">
                     {isCollapsed ? (
                         <div className="flex flex-col items-center gap-4">
                             <div

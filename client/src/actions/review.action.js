@@ -9,7 +9,6 @@ export const getReviews = async (params) => {
         method: "GET",
         params: params,
         withCredentials: true,
-        cache: "force-store",
         tags: ["reviews"]
     });
 
@@ -58,7 +57,21 @@ export const getOwnReview = async (movieId) => {
         url: `/reviews/movies/${movieId}/reviews/me`,
         method: "GET",
         withCredentials: true,
-        cache: "force-store",
+        tags: ["reviews"]
+    });
+
+    if (!response.success) {
+        return null;
+    }
+
+    return response.data;
+};
+
+export const getMyReviews = async () => {
+    const response = await apiRequest({
+        url: `/reviews/movies/my/reviews`,
+        method: "GET",
+        withCredentials: true,
         tags: ["reviews"]
     });
 
@@ -109,6 +122,7 @@ export const deleteReviewByAdmin = async (reviewId) => {
         withCredentials: true,
     });
 
+    console.log(response);
     if (!response.success) {
         return false;
     };
@@ -125,6 +139,8 @@ export const moderateReview = async (reviewId, payload) => {
         data: payload,
         withCredentials: true,
     });
+
+    console.log("Moderate Review Response", response);
 
     if (!response.success) {
         return false;

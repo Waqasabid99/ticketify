@@ -9,14 +9,26 @@ async function findEligibleBooking(userId, movieId) {
         where: {
             userId,
             status: BookingStatus.CONFIRMED,
-            show: { movieId },
+            show: {
+                movieId: movieId,
+                startTime: {
+                    lte: new Date(),
+                },
+            },
         },
-        select: { id: true },
+        orderBy: {
+            bookedAt: "desc",
+        },
+        select: {
+            id: true,
+            showId: true,
+        },
     });
 }
 
 // ─── Create Review ────────────────────────────────────────────────────────────
 export const createReview = asyncHandler(async (req, res) => {
+    console.log("Inside create review")
     const { movieId } = req.params;
     const { id: userId } = req.user;
     const { rating, review } = req.body;
@@ -28,24 +40,31 @@ export const createReview = asyncHandler(async (req, res) => {
     });
     if (!movie) throw ApiError.notFound("Movie not found.");
 
+    console.log("Movie Found")
+
     // ── Validate rating ───────────────────────────────────────────────────────
     const parsedRating = Number(rating);
     if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 10) {
         throw ApiError.badRequest("Rating must be an integer between 1 and 10.");
     }
 
+    console.log("Rating Validated")
+
     // ── Duplicate guard ───────────────────────────────────────────────────────
     const existing = await prisma.ratingReview.findUnique({
         where: { movieId_userId: { movieId, userId } },
-        select: { id: true },
+        select: { id: true }
     });
     if (existing) {
         throw ApiError.conflict("You have already submitted a review for this movie.");
     }
 
+    console.log("No Existing Review")
     // ── Verified purchase check ───────────────────────────────────────────────
     const eligibleBooking = await findEligibleBooking(userId, movieId);
+    console.log("Eligible Booking Found")
     const isVerified = Boolean(eligibleBooking);
+    console.log(isVerified)
 
     const newReview = await prisma.ratingReview.create({
         data: {
@@ -172,6 +191,22 @@ export const getMyReview = asyncHandler(async (req, res) => {
     if (!review) throw ApiError.notFound("You have not reviewed this movie yet.");
 
     return apiResponse(res, 200, true, "Your review fetched successfully.", review);
+});
+
+// Get all My Reviews
+export const getMyReviews = asyncHandler(async (req, res) => {
+    const { id: userId } = req.user;
+
+    const reviews = await prisma.ratingReview.findMany({
+        where: { userId },
+        include: {
+            user: { select: { id: true, firstName: true, lastName: true } },
+            movie: { select: { id: true, title: true } },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+
+    return apiResponse(res, 200, true, "Your reviews fetched successfully.", reviews);
 });
 
 // ─── Update My Review ─────────────────────────────────────────────────────────
@@ -305,7 +340,7 @@ export const moderateReview = asyncHandler(async (req, res) => {
     }
 
     const review = await prisma.ratingReview.findUnique({
-        where: { id: Number(reviewId) },
+        where: { id: reviewId },
         select: { id: true, status: true, movieId: true, userId: true },
     });
     if (!review) throw ApiError.notFound("Review not found.");
@@ -316,7 +351,7 @@ export const moderateReview = asyncHandler(async (req, res) => {
 
     const updated = await prisma.$transaction(async (tx) => {
         const result = await tx.ratingReview.update({
-            where: { id: Number(reviewId) },
+            where: { id: reviewId },
             data: { status: normalized },
             include: {
                 user: { select: { id: true, firstName: true, lastName: true, email: true } },
@@ -357,13 +392,13 @@ export const deleteReview = asyncHandler(async (req, res) => {
     const { id: deletedBy } = req.user;
 
     const review = await prisma.ratingReview.findUnique({
-        where: { id: Number(reviewId) },
+        where: { id: reviewId },
         select: { id: true, movieId: true, userId: true },
     });
     if (!review) throw ApiError.notFound("Review not found.");
 
     await prisma.$transaction(async (tx) => {
-        await tx.ratingReview.delete({ where: { id: Number(reviewId) } });
+        await tx.ratingReview.delete({ where: { id: reviewId } });
 
         await tx.auditLog.create({
             data: {

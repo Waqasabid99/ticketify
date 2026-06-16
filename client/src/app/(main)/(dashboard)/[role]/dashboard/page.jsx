@@ -9,14 +9,11 @@ export const generateMetadata = async () => {
 };
 
 const page = async ({ params }) => {
-    const role = await params.role;
+    const { role } = await params;
     const data = await getAnalyticsData();
 
-    console.log("Analytics Data is : ", data);
-    console.log("Role is : ", role);
-
     return (
-        <DashboardPage analyticsData={data} role={role} />
+        <DashboardPage analyticsData={data} role={role.toUpperCase()} />
     )
 }
 

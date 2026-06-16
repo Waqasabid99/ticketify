@@ -1,4 +1,4 @@
-import { getAllBookings } from "@/actions/booking.action";
+import { getAllBookings, getMyBookings } from "@/actions/booking.action";
 import { getEnums } from "@/actions/enum.action";
 import Bookings from "@/components/dashboard/booking/Bookings";
 
@@ -9,14 +9,19 @@ export const generateMetadata = async () => {
     };
 };
 
-const page = async ({ searchParams }) => {
-    const params = await searchParams;
-    const pageVal = params?.page || 1;
-    const limitVal = params?.limit || 10;
-    const [data, userRoles] = await Promise.all([
-        await getAllBookings({ page: pageVal, limit: limitVal }),
-        await getEnums("userRole")
-    ])
+const page = async ({ searchParams, params }) => {
+    const { role } = await params;
+    const query = await searchParams;
+    const pageVal = query?.page || 1;
+    const limitVal = query?.limit || 10;
+
+    let data;
+    if (role === "customer") {
+        data = await getMyBookings({ page: pageVal, limit: limitVal });
+    } else {
+        data = await getAllBookings({ page: pageVal, limit: limitVal });
+    }
+    const userRoles = await getEnums("userRole");
 
     const pagination = {
         page: data?.page,
@@ -27,7 +32,7 @@ const page = async ({ searchParams }) => {
     const adminRoles = userRoles?.filter((role) => role !== "CUSTOMER");
 
     return (
-        <Bookings bookings={data?.bookings} pagination={pagination} adminRoles={adminRoles} />
+        <Bookings bookings={data?.bookings || []} pagination={pagination} adminRoles={adminRoles} />
     );
 };
 

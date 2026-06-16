@@ -8,6 +8,7 @@ import {
     getAllReviews,
     moderateReview,
     deleteReview,
+    getMyReviews,
 } from "../controllers/review.controller.js";
 import { verifyUser } from "../middleware/verify.middleware.js";
 import { requirePermissions } from "../middleware/acl.middleware.js";
@@ -15,6 +16,13 @@ import { requirePermissions } from "../middleware/acl.middleware.js";
 const reviewRouter = express.Router();
 
 // Public — approved reviews + stats for a movie
+reviewRouter.get(
+    "/movies/my/reviews",
+    verifyUser,
+    requirePermissions("review:read-own"),
+    getMyReviews
+);
+
 reviewRouter.get("/movies/:movieId/reviews", getMovieReviews);
 
 // Customer — own review CRUD (order matters: /me before /:reviewId)

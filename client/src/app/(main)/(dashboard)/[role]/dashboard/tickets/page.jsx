@@ -1,5 +1,5 @@
 import { getEnums } from "@/actions/enum.action";
-import { getAllTickets } from "@/actions/ticket.action";
+import { getAllTickets, getMyTickets } from "@/actions/ticket.action";
 import Tickets from "@/components/dashboard/ticket/Tickets";
 
 export const generateMetadata = async () => {
@@ -9,14 +9,19 @@ export const generateMetadata = async () => {
     };
 };
 
-const page = async ({ searchParams }) => {
-    const params = await searchParams;
-    const pageVal = params?.page || 1;
-    const limitVal = params?.limit || 10;
-    const [data, userRoles] = await Promise.all([
-        await getAllTickets({ page: pageVal, limit: limitVal }),
-        await getEnums("userRole")
-    ])
+const page = async ({ searchParams, params }) => {
+    const { role } = await params;
+    const query = await searchParams;
+    const pageVal = query?.page || 1;
+    const limitVal = query?.limit || 10;
+
+    let data;
+    if (role === "customer") {
+        data = await getMyTickets({ page: pageVal, limit: limitVal });
+    } else {
+        data = await getAllTickets({ page: pageVal, limit: limitVal });
+    }
+    const userRoles = await getEnums("userRole");
 
     const pagination = {
         page: data?.page,
@@ -26,9 +31,8 @@ const page = async ({ searchParams }) => {
     }
     const adminRoles = userRoles?.filter((role) => role !== "CUSTOMER");
 
-
     return (
-        <Tickets tickets={data?.tickets} pagination={pagination} adminRoles={adminRoles} />
+        <Tickets tickets={data?.tickets || []} pagination={pagination} adminRoles={adminRoles} />
     )
 }
 

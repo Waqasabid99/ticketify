@@ -15,32 +15,21 @@ import {
     BarChart,
     Bar,
     Legend,
-    LineChart,
-    Line,
 } from "recharts";
 import {
-    TrendingUp,
     Ticket,
     Users,
     Film,
     DollarSign,
-    BarChart2,
     Percent,
-    Clock,
     ShoppingBag,
-    Star,
     Activity,
     RefreshCw,
     AlertCircle,
     Loader2,
     MonitorPlay,
-    CalendarCheck,
 } from "lucide-react";
 
-// ─── Mock getAnalyticsData (replace with your server action import) ────────────────
-// import { getAnalyticsData } from "@/actions/analytics.action";
-
-// ─── Color Palette (using CSS vars from Void & Volt design system) ─────────────
 const CHART_COLORS = ["#FEE505", "#7C3AED", "#10B981", "#F59E0B", "#EF4444", "#3B82F6"];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -584,17 +573,6 @@ const roleLabels = {
 };
 
 // ─── MAIN PAGE ─────────────────────────────────────────────────────────────────
-
-/**
- * DashboardPage
- *
- * Usage (Server Component parent passes analytics down):
- *   const data = await getAnalyticsData();
- *   <DashboardPage analyticsData={data} role={session.user.role} />
- *
- * Or as a Client-only page (for demo / if you want refresh button):
- *   <DashboardPage fetchFn={getAnalyticsData} role={...} />
- */
 const DashboardPage = ({ analyticsData: initialData = null, role = "OWNER", fetchFn = null }) => {
     const [data, setData] = useState(initialData);
     const [loading, setLoading] = useState(!initialData);
