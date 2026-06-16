@@ -47,7 +47,7 @@ export const createBooking = asyncHandler(async (req, res) => {
 
     if (couponCode) {
         const coupon = await prisma.coupon.findFirst({
-            where: { code: couponCode.toUpperCase(), deletedAt: null },
+            where: { code: couponCode.toUpperCase().trim(), deletedAt: null },
         });
 
         if (!coupon || !coupon.isActive)

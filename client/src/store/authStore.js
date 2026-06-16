@@ -35,10 +35,11 @@ export const useAuthStore = create(
                         user: data?.data?.user,
                         role: data?.data?.user?.role,
                         permissions: data?.data?.permissions || [],
-                        isAuthenticated: true,
+                        isAuthenticated: false,
                         isLoading: false,
                     });
                     toast.success(data.message);
+                    return true;
                 } catch (error) {
                     console.log(error.response.data.message)
                     set({

@@ -47,7 +47,7 @@ const DesktopDropdown = ({ link }) => {
                     transition-[opacity,transform] duration-200 ease-[ease]
                     origin-top
                     ${isOpen
-                        ? "opacity-100 scale-y-100 pointer-events-auto"
+                        ? `${link?.children?.length > 5 ? "grid grid-cols-2" : "grid grid-cols-1"} opacity-100 scale-y-100 pointer-events-auto`
                         : "opacity-0 scale-y-95 pointer-events-none"
                     }
                 `}

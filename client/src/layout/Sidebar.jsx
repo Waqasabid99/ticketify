@@ -19,7 +19,9 @@ import {
     ChevronLeft,
     ChevronRight,
     Ticket,
-    Sparkles
+    Sparkles,
+    PercentCircle,
+    BookUser
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -103,6 +105,24 @@ const Sidebar = ({ isOpen, onClose }) => {
             href: `/${role?.toLowerCase()}/dashboard/shows`,
             icon: Calendar,
             permission: "show:list",
+        },
+        {
+            name: "Tickets",
+            href: `/${role?.toLowerCase()}/dashboard/tickets`,
+            icon: Ticket,
+            // permission: "ticket:read-all",
+        },
+        {
+            name: "Bookings",
+            href: `/${role?.toLowerCase()}/dashboard/bookings`,
+            icon: BookUser,
+            // permission: "ticket:read-all",
+        },
+        {
+            name: "Coupon",
+            href: `/${role?.toLowerCase()}/dashboard/coupons`,
+            icon: PercentCircle,
+            // permission: "discount:list",
         },
         {
             name: "Reviews",

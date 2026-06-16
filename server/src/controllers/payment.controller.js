@@ -300,7 +300,7 @@ async function handlePaymentSuccess(intent) {
 
         await confirmBookingInTx(tx, {
             booking,
-            triggeredByUserId: "SYSTEM",
+            triggeredByUserId: booking.user.id,
             ipAddress: null,
             userAgent: null,
         });

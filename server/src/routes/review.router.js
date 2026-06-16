@@ -14,11 +14,6 @@ import { requirePermissions } from "../middleware/acl.middleware.js";
 
 const reviewRouter = express.Router();
 
-// ─────────────────────────────────────────────────────────────
-// Movie-scoped routes  →  /movies/:movieId/reviews
-// Mount this router in your movie router or app-level router
-// ─────────────────────────────────────────────────────────────
-
 // Public — approved reviews + stats for a movie
 reviewRouter.get("/movies/:movieId/reviews", getMovieReviews);
 

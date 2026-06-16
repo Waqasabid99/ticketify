@@ -13,18 +13,9 @@ import { requireRole } from "../middleware/acl.middleware.js";
 import { UserRole } from "../generated/prisma/enums.ts";
 
 const paymentRouter = express.Router();
+const webhookRouter = express.Router();
 
-// ─── Stripe Webhook ───────────────────────────────────────────────────────────
-// MUST use express.raw() — raw body required for signature verification.
-// Register this BEFORE any express.json() middleware in your app.js.
-//
-// In app.js, mount this router BEFORE the json middleware:
-//
-//   import paymentRouter from "./routes/payment.routes.js";
-//   app.use("/api/payments", paymentRouter);   // ← before express.json()
-//   app.use(express.json());                   // ← after
-//
-paymentRouter.post(
+webhookRouter.post(
     "/webhook",
     express.raw({ type: "application/json" }),
     handleStripeWebhook
@@ -59,4 +50,4 @@ paymentRouter.get("/booking/:bookingId", getPaymentsByBooking);
 // Single payment by ID
 paymentRouter.get("/:paymentId", getPaymentById);
 
-export default paymentRouter;
+export { paymentRouter, webhookRouter };

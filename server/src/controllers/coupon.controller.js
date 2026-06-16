@@ -138,7 +138,7 @@ export const updateCoupon = asyncHandler(async (req, res) => {
         updateData.type = cType;
     }
     if (value) updateData.value = value;
-    if (maxUses) updateData.maxUses = maxUses;
+    if (maxUses) updateData.maxUses = parseInt(maxUses, 10);
     if (startsAt) updateData.startsAt = startsAt;
     if (expiresAt) updateData.expiresAt = expiresAt;
 

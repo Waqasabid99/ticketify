@@ -20,7 +20,6 @@ const page = async ({ searchParams }) => {
         totalPages: theaters?.totalPages,
     }
 
-    console.log(theaters.cinemas)
     return (
         <Theaters theaters={theaters?.cinemas} pagination={pagination} />
     )

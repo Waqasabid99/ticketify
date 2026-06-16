@@ -1,18 +1,22 @@
 "use client";
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
     Calendar,
-    Clock,
     MapPin,
-    ChevronRight,
     Ticket,
     X,
     Info,
     Monitor,
-    Star,
+    Loader2,
 } from "lucide-react";
+
+import { createBooking } from "@/actions/booking.action";
+import { useAuthStore } from "@/store/authStore";
+import { AuthModalManager } from "../ui/AuthModal";
+import { toast } from "react-toastify";
+import { createPaymentIntent } from "@/actions/payment.action";
+import { useRouter } from "next/navigation";
 
 /* ─────────────────────────────────────────────────────────────
    UTILITIES
@@ -59,13 +63,13 @@ function groupSeatsByRow(seats) {
     return map;
 }
 
-const FALLBACK_PRICES = {
-    REGULAR: 500,
-    PREMIUM: 800,
-    VIP: 1200,
-    RECLINER: 1000,
-    COUPLE: 900,
-};
+// const FALLBACK_PRICES = {
+//     REGULAR: 500,
+//     PREMIUM: 800,
+//     VIP: 1200,
+//     RECLINER: 1000,
+//     COUPLE: 900,
+// };
 
 /* ─────────────────────────────────────────────────────────────
    SEAT COMPONENT
@@ -124,11 +128,18 @@ function Seat({ seat, showSeat, isSelected, onToggle }) {
 
 const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
     /* ── State ── */
+    const { isAuthenticated } = useAuthStore();
     const [selectedShowId, setSelectedShowId] = useState(initialShowId);
     const [seats, setSeats] = useState([]);
     const [loadingSeats, setLoadingSeats] = useState(false);
     const [selectedSeatIds, setSelectedSeatIds] = useState(new Set());
     const [activeDateKey, setActiveDateKey] = useState(null);
+    const [couponCode, setCouponCode] = useState("");
+    const [isBooking, setIsBooking] = useState(false);
+
+    const [showAuthModal, setShowAuthModal] = useState(false)
+    const [authModalType, setAuthModalType] = useState("prompt")
+    const router = useRouter();
 
     /* ── Derived ── */
     const showsByDate = useMemo(() => groupByDate(shows), [shows]);
@@ -187,7 +198,7 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
         const rules = seat.showSeats?.[0]?.show?.pricingRules ?? [];
         const rule = rules.find((r) => r.seatType === seat.seatType);
         if (rule) return parseFloat(rule.amount);
-        return selectedShow?.basePrice ?? FALLBACK_PRICES[seat.seatType] ?? 0;
+        return selectedShow?.basePrice ?? 0;
     }
 
     /* ── Build checkout payload ── */
@@ -195,17 +206,34 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
         ? {
             showId: selectedShow.id,
             seatIds: [...selectedSeatIds],
-            totalPrice,
+            couponCode: couponCode ? couponCode : null,
         }
         : null;
 
-    const checkoutHref = checkoutPayload
-        ? `/checkout?payload=${encodeURIComponent(JSON.stringify(checkoutPayload))}`
-        : "#";
+    const handleSubmit = async () => {
+        setIsBooking(true)
+        try {
+            const response = await createBooking(checkoutPayload)
+            const paymentIntent = await createPaymentIntent({ bookingId: response.id })
+            setIsBooking(false)
+            router.push(`/checkout?clientSecret=${paymentIntent.clientSecret}`)
+        } catch (err) {
+            console.log(err)
+            toast.error(err.message)
+            setIsBooking(false)
+        }
+    }
 
-    /* ─────────────────────────────────────────────────────────
-       RENDER
-    ───────────────────────────────────────────────────────── */
+    /* ── Auth modals ── */
+    const openAuthModal = (type) => {
+        setAuthModalType(type)
+        setShowAuthModal(true)
+    }
+
+    const closeAuthModal = () => {
+        setShowAuthModal(false)
+    }
+
     return (
         <main className="min-h-screen mt-28 bg-(--color-bg-page) text-(--color-text-secondary) font-(family-name:--font-body)">
 
@@ -499,6 +527,15 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                         </div>
                     </section>
 
+
+                    {showAuthModal && (
+                        <AuthModalManager
+                            trigger={openAuthModal ? "unauthenticated" : null}
+                            onClose={() => setShowAuthModal(false)}
+                            onSuccess={() => setShowAuthModal(false)}
+                        />
+                    )}
+
                     {/* ────────────────────────────────────────
                         RIGHT PANEL — Summary & Checkout
                     ──────────────────────────────────────── */}
@@ -603,9 +640,24 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                             )}
                         </div>
 
+                        {/* Coupon Section */}
+                        <div className="mt-6 bg-(--color-bg-card) border border-(--color-border-default) rounded-2xl p-4">
+                            <p className="text-(--color-text-primary) font-(family-name:--font-display)">Got a Coupon? Enter here</p>
+                            <div className="flex flex-col gap-2 mt-4 items-start">
+                                <input
+                                    type="text"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                    placeholder="Enter coupon code"
+                                    className="input input-md flex-1 text-(--color-text-secondary) border border-(--color-border-default) bg-(--color-bg-card) rounded-lg px-4 py-2 outline-0"
+                                />
+                            </div>
+                        </div>
+
                         {/* CTA */}
-                        <Link
-                            href={selectedSeats.length > 0 ? checkoutHref : "#"}
+                        <button
+                            onClick={isAuthenticated ? handleSubmit : () => openAuthModal("login")}
+                            disabled={isBooking}
                             className={`btn btn-lg w-full justify-center font-(family-name:--font-display) tracking-wide
                                 ${selectedSeats.length > 0
                                     ? "link-button"
@@ -613,11 +665,11 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                                 }`}
                             aria-disabled={selectedSeats.length === 0}
                         >
-                            <Ticket size={18} />
+                            {isBooking ? <Loader2 size={18} /> : <Ticket size={18} />}
                             {selectedSeats.length > 0
-                                ? `Proceed to Payment · $${totalPrice}`
+                                ? isBooking ? "Booking..." : `Proceed to Payment · $${totalPrice}`
                                 : "Select Seats to Continue"}
-                        </Link>
+                        </button>
 
                         {selectedSeats.length > 0 && (
                             <p className="text-xs text-(--color-text-muted) text-center leading-relaxed">
