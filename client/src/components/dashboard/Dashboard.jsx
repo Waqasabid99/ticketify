@@ -38,7 +38,7 @@ const fmt = {
     currency: (n) =>
         new Intl.NumberFormat("en-US", {
             style: "currency",
-            currency: "USD",
+            currency: "PKR",
             maximumFractionDigits: 0,
         }).format(n ?? 0),
     number: (n) => new Intl.NumberFormat("en-US").format(n ?? 0),
@@ -168,7 +168,7 @@ const OwnerDashboard = ({ data }) => {
                                 tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
                                 tickLine={false}
                                 axisLine={false}
-                                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                                tickFormatter={(v) => `Rs.${(v / 1000).toFixed(0)}k`}
                                 width={48}
                             />
                             <YAxis
@@ -187,7 +187,7 @@ const OwnerDashboard = ({ data }) => {
                                 yAxisId="revenue"
                                 type="monotone"
                                 dataKey="revenue"
-                                name="Revenue ($)"
+                                name="Revenue (PKR)"
                                 stroke="#FEE505"
                                 strokeWidth={2}
                                 fill="url(#gradRevenue)"
@@ -233,7 +233,7 @@ const OwnerDashboard = ({ data }) => {
                                     tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                                    tickFormatter={(v) => `Rs.${(v / 1000).toFixed(0)}k`}
                                 />
                                 <YAxis
                                     type="category"
@@ -318,10 +318,10 @@ const OwnerDashboard = ({ data }) => {
                                     tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                                    tickFormatter={(v) => `Rs.${(v / 1000).toFixed(0)}k`}
                                     width={48}
                                 />
-                                <Tooltip content={<CustomTooltip prefix="$" />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+                                <Tooltip content={<CustomTooltip prefix="Rs." />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
                                 <Bar dataKey="revenue" name="Revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={40} />
                             </BarChart>
                         </ResponsiveContainer>
@@ -505,7 +505,7 @@ const CustomerDashboard = ({ data }) => {
                                     tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(v) => `$${v}`}
+                                    tickFormatter={(v) => `Rs.${v}`}
                                     width={48}
                                 />
                                 <Tooltip content={<CustomTooltip prefix="$" />} />

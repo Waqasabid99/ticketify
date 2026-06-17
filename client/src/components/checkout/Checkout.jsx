@@ -154,7 +154,7 @@ function BookingSummary({ summary }) {
                                     </span>
                                 </div>
                                 <span className="text-(--color-text-primary) font-semibold font-(family-name:--font-display) text-sm">
-                                    {currency?.toUpperCase() === "USD" ? "$" : currency}{seat.price}
+                                    {currency?.toUpperCase() === "PKR" ? "Rs" : currency}{seat.price}
                                 </span>
                             </div>
                         ))}
@@ -166,7 +166,7 @@ function BookingSummary({ summary }) {
                     <div className="flex justify-between items-center">
                         <span className="text-(--color-text-muted) text-sm">Total</span>
                         <span className="text-(--color-accent) font-extrabold font-(family-name:--font-display) text-xl">
-                            {currency?.toUpperCase() === "USD" ? "$" : currency}{totalAmount}
+                            {currency?.toUpperCase() === "PKR" ? "Rs" : currency}{totalAmount}
                         </span>
                     </div>
                 </div>

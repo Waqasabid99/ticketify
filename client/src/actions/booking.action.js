@@ -27,7 +27,11 @@ export const createBooking = async (payload) => {
         cache: "no-store",
     });
 
-    revalidateTag("bookings");
+    revalidateTag("bookings", "max");
+    revalidateTag("my-bookings", "max");
+    revalidateTag("tickets", "max");
+    revalidateTag("shows", "max");
+    revalidateTag("seats", "max");
 
     if (!response.success) throw new Error(response.message);
     return response.data;
@@ -105,9 +109,13 @@ export const confirmBooking = async (bookingId) => {
         cache: "no-store",
     });
 
-    revalidateTag("bookings");
-    revalidateTag(`booking-${bookingId}`);
-    revalidateTag("tickets");
+    revalidateTag("bookings", "max");
+    revalidateTag(`booking-${bookingId}`, "max");
+    revalidateTag("tickets", "max");
+    revalidateTag("my-bookings", "max");
+    revalidateTag("shows", "max");
+    revalidateTag("seats", "max");
+
 
     if (!response.success) throw new Error(response.message);
     return response.data;
@@ -123,9 +131,12 @@ export const cancelBooking = async (bookingId) => {
         cache: "no-store",
     });
 
-    revalidateTag("bookings");
-    revalidateTag(`booking-${bookingId}`);
-    revalidateTag("tickets");
+    revalidateTag("bookings", "max");
+    revalidateTag(`booking-${bookingId}`, "max");
+    revalidateTag("tickets", "max");
+    revalidateTag("my-bookings", "max");
+    revalidateTag("shows", "max");
+    revalidateTag("seats", "max");
 
     if (!response.success) throw new Error(response.message);
     return response.data;
@@ -141,7 +152,11 @@ export const expireStaleBookings = async () => {
         cache: "no-store",
     });
 
-    revalidateTag("bookings");
+    revalidateTag("bookings", "max");
+    revalidateTag("my-bookings", "max");
+    revalidateTag("tickets", "max");
+    revalidateTag("shows", "max");
+    revalidateTag("seats", "max");
 
     if (!response.success) throw new Error(response.message);
     return response.data;

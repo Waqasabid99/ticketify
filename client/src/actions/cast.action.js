@@ -24,7 +24,8 @@ export const addCast = async (payload) => {
         withCredentials: true,
     });
 
-    revalidateTag("cast", "max", 1);
+    revalidateTag("cast", "max");
+    revalidateTag("movies", "max");
 
     if (!response.success) throw new Error(response.message);
     console.log(response.data);
@@ -39,7 +40,8 @@ export const updateCast = async (payload) => {
         withCredentials: true
     });
 
-    revalidateTag("cast", "max", 1);
+    revalidateTag("cast", "max");
+    revalidateTag("movies", "max");
 
     if (!response.success) throw new Error(response.message);
     console.log(response.data);
@@ -54,7 +56,8 @@ export const deleteCast = async (payload) => {
         withCredentials: true
     });
 
-    revalidateTag("cast", "max", 1);
+    revalidateTag("cast", "max");
+    revalidateTag("movies", "max");
 
     if (!response.success) throw new Error(response.message);
     console.log(response.data);
@@ -67,7 +70,8 @@ export const removeCastMember = async (payload) => {
         method: "DELETE",
         withCredentials: true,
     });
-    revalidateTag("cast", "max", 1);
+    revalidateTag("cast", "max");
+    revalidateTag("movies", "max");
     if (!response.success) throw new Error(response.message);
     console.log(response.data);
     return response.data;

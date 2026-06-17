@@ -2,7 +2,6 @@ import prisma from "../config/prisma.js";
 import { BookingStatus, BookingSource, ShowSeatStatus, TicketStatus, ShowStatus, CouponType, UserRole } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
-import { validateCoupon } from "../services/validateCoupon.service.js";
 import { generateBookingNumber, generateQrCode, generateTicketNumber } from "../utils/bookingHelper.js";
 import { sendBookingConfirmationEmail } from "../services/email.service.js";
 import { ticketInclude } from "./ticket.controller.js";
@@ -557,6 +556,7 @@ export const cancelBooking = asyncHandler(async (req, res) => {
 // ─── Expire Stale Bookings (cron / internal job) ─────────────────────────────
 
 export const expireStaleBookings = asyncHandler(async (req, res) => {
+    const { id: userId } = req.user;
     const stale = await prisma.booking.findMany({
         where: {
             status: { in: [BookingStatus.PENDING, BookingStatus.RESERVED, BookingStatus.EXPIRED] },
@@ -592,7 +592,7 @@ export const expireStaleBookings = asyncHandler(async (req, res) => {
 
         await tx.auditLog.createMany({
             data: staleIds.map((id) => ({
-                userId: "SYSTEM",
+                userId,
                 action: "BOOKING_EXPIRED",
                 entity: "BOOKING",
                 entityId: id,

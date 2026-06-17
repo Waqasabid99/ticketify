@@ -67,6 +67,11 @@ export const createShow = async (payload) => {
     };
 
     revalidateTag('shows', "max");
+    revalidateTag('movies', "max");
+    revalidateTag('seats', "max");
+    revalidateTag('theaters', "max");
+    revalidateTag('screens', "max");
+
     return response.data;
 };
 
@@ -83,6 +88,11 @@ export const updateShow = async (id, payload) => {
     };
 
     revalidateTag('shows', "max");
+    revalidateTag('movies', "max");
+    revalidateTag('seats', "max");
+    revalidateTag('theaters', "max");
+    revalidateTag('screens', "max");
+
     return response.data;
 };
 
@@ -98,5 +108,9 @@ export const deleteShow = async (id) => {
     };
 
     revalidateTag('shows', "max");
+    revalidateTag('movies', "max");
+    revalidateTag('seats', "max");
+    revalidateTag('screens', "max");
+    revalidateTag(' theaters', "max");
     return response.data;
 };

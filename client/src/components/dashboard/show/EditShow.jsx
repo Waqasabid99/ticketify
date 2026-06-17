@@ -51,7 +51,7 @@ const buildInitialRules = (show) =>
         ? show.pricingRules.map((r) => ({
             id: r.id,
             seatType: r.seatType ?? "",
-            amount: r.amount?.toString() ?? "",
+            amountPkr: r.amount?.toString() ?? "",
             type: r.type ?? "FIXED",
         }))
         : [{ seatType: "", amount: "", type: "FIXED" }];
@@ -82,7 +82,7 @@ const Section = ({ icon: Icon, title, badge, children }) => (
     <div className="card rounded-xl p-6">
         <div className="flex items-center justify-between pb-4 mb-5 border-b border-(--color-border-subtle)">
             <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-(--color-purple-dim) flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-(--color-purple-dim) flex items-center justify-center shrink-0">
                     <Icon className="w-4 h-4 text-(--color-accent)" />
                 </div>
                 <h3 className="font-display text-base font-semibold text-(--color-text-primary) tracking-tight">
@@ -363,7 +363,7 @@ const EditShow = ({ show, seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) =>
                 payload.pricingRules = pricingRules.map((r) => ({
                     ...(r.id ? { id: r.id } : {}),
                     seatType: r.seatType || null,
-                    amount: Number(r.amount),
+                    amountPkr: Number(r.amount),
                     type: r.type,
                 }));
             }
@@ -450,7 +450,7 @@ const EditShow = ({ show, seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) =>
 
             {/* Quick status bar */}
             <div className="flex items-center gap-2.5 flex-wrap px-4 py-2.5 rounded-xl bg-(--color-surface) border border-(--color-border-subtle)">
-                <span className="text-xs text-(--color-text-muted) font-medium flex items-center gap-1.5 flex-shrink-0">
+                <span className="text-xs text-(--color-text-muted) font-medium flex items-center gap-1.5 shrink-0">
                     <Zap className="w-3 h-3" /> Quick switch:
                 </span>
                 {SHOW_STATUSES.map((s) => {
@@ -500,9 +500,9 @@ const EditShow = ({ show, seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) =>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-(--color-surface-raised) border border-(--color-border-subtle)">
                             {show?.movie?.posterUrl ? (
                                 <img src={show.movie.posterUrl} alt={show.movie.title}
-                                    className="w-8 h-11 object-cover rounded-md flex-shrink-0" />
+                                    className="w-8 h-11 object-cover rounded-md shrink-0" />
                             ) : (
-                                <div className="w-8 h-11 rounded-md bg-(--color-purple-dim) flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-11 rounded-md bg-(--color-purple-dim) flex items-center justify-center shrink-0">
                                     <Film className="w-3.5 h-3.5 text-(--color-text-muted)" />
                                 </div>
                             )}
@@ -515,12 +515,12 @@ const EditShow = ({ show, seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) =>
                                         .filter(Boolean).join(" · ")}
                                 </p>
                             </div>
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-(--color-text-muted) bg-(--color-border-subtle) px-2 py-1 rounded flex-shrink-0">
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-(--color-text-muted) bg-(--color-border-subtle) px-2 py-1 rounded shrink-0">
                                 <Lock className="w-3 h-3" /> Locked
                             </span>
                         </div>
                         <p className="text-xs text-(--color-text-disabled) flex items-center gap-1.5 -mt-1">
-                            <Info className="w-3 h-3 flex-shrink-0" />
+                            <Info className="w-3 h-3 shrink-0" />
                             Movie cannot be changed after a show is created. Create a new show to change the movie.
                         </p>
                     </Section>
@@ -643,7 +643,7 @@ const EditShow = ({ show, seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) =>
                                         <div className="grid grid-cols-[1fr_1fr_1fr_36px] gap-2.5 items-start">
                                             <Field label="Seat type">
                                                 <select
-                                                    className={`${fieldBase} ${ruleChanged && !isNewRule ? "border-(--color-warning)/40 bg-(--color-warning)/[0.03]" : ""}`}
+                                                    className={`${fieldBase} ${ruleChanged && !isNewRule ? "border-(--color-warning)/40 bg-(--color-warning)/3" : ""}`}
                                                     value={rule.seatType}
                                                     onChange={(e) => updateRule(i, "seatType", e.target.value)}
                                                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23706A85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center", paddingRight: "2rem" }}>
@@ -655,13 +655,13 @@ const EditShow = ({ show, seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) =>
                                             </Field>
                                             <Field label="Amount" error={errors[`rule_${i}_amount`]}>
                                                 <input type="number" min={0} step="0.01"
-                                                    className={`${fieldBase} ${rule.amount !== origRule?.amount ? "border-(--color-warning)/40 bg-(--color-warning)/[0.03]" : ""}`}
+                                                    className={`${fieldBase} ${rule.amount !== origRule?.amount ? "border-(--color-warning)/40 bg-(--color-warning)/3" : ""}`}
                                                     placeholder="e.g. 500" value={rule.amount}
                                                     onChange={(e) => updateRule(i, "amount", e.target.value)} />
                                             </Field>
                                             <Field label="Type">
                                                 <select
-                                                    className={`${fieldBase} ${rule.type !== origRule?.type ? "border-(--color-warning)/40 bg-(--color-warning)/[0.03]" : ""}`}
+                                                    className={`${fieldBase} ${rule.type !== origRule?.type ? "border-(--color-warning)/40 bg-(--color-warning)/3" : ""}`}
                                                     value={rule.type}
                                                     onChange={(e) => updateRule(i, "type", e.target.value)}
                                                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23706A85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center", paddingRight: "2rem" }}>

@@ -148,7 +148,7 @@ const TicketDetailModal = ({ ticket, onClose }) => {
                             <p className="text-xs text-(--color-text-muted)">
                                 Price:{" "}
                                 <span className="font-semibold text-(--color-text-primary)">
-                                    ${Number(bookingSeat.price).toFixed(2)}
+                                    Rs.{bookingSeat.price}
                                 </span>
                             </p>
                         )}
@@ -508,7 +508,7 @@ const Tickets = ({ tickets = [], pagination = {}, adminRoles }) => {
             render: (val, row) =>
                 row?.bookingSeat?.price != null ? (
                     <span className="text-sm font-semibold tabular-nums text-(--color-text-primary)">
-                        ${Number(row.bookingSeat.price).toFixed(2)}
+                        Rs.{Number(row.bookingSeat.price).toFixed(2)}
                     </span>
                 ) : (
                     "—"

@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { CastRole, MovieStatus, ReviewStatus } from "../generated/prisma/enums.ts";
+import { CastRole, MovieStatus, ReviewStatus, ShowStatus } from "../generated/prisma/enums.ts";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
 import { generateUniqueSlug } from "../utils/helper.js";
@@ -97,7 +97,7 @@ export const createMovie = asyncHandler(async (req, res) => {
 
 // GET ALL MOVIES
 export const getAllMovies = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, status, language, search, genreSlug, castSlug } = req.query;
+    const { page = 1, limit = 10, status, language, search, genreSlug, castSlug, cinemaSlug } = req.query;
 
     const pageNumber = Math.max(1, Number(page) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(limit) || 10));
@@ -135,6 +135,26 @@ export const getAllMovies = asyncHandler(async (req, res) => {
         where.casts = { some: { id: cast.id } };
     };
 
+    if (cinemaSlug) {
+        const cinema = await prisma.cinema.findUnique({
+            where: { slug: cinemaSlug },
+        });
+
+        if (!cinema) throw ApiError.notFound("Cinema not found");
+
+        where.shows = {
+                some: {
+                    status: ShowStatus.SCHEDULED,
+                    screen: {
+                    cinema: {
+                        slug: cinemaSlug,
+                        deletedAt: null
+                    }
+                    }
+                }
+                };
+    };
+
     if (language) where.language = { equals: language, mode: "insensitive" };
 
     if (search) {
@@ -152,6 +172,15 @@ export const getAllMovies = asyncHandler(async (req, res) => {
                     },
                     where: {
                         status: ReviewStatus.APPROVED
+                    }
+                },
+                _count: {
+                    select: {
+                        ratingReviews: {
+                            where: {
+                                status: ReviewStatus.APPROVED
+                            }
+                        }
                     }
                 }
             },
@@ -186,12 +215,38 @@ export const getMovieById = asyncHandler(async (req, res) => {
         include: {
             genres: { include: { genre: true } },
             casts: true,
+            ratingReviews: {
+                select: {
+                    rating: true
+                },
+                where: {
+                    status: ReviewStatus.APPROVED
+                }
+            },
+            _count: {
+                select: {
+                    ratingReviews: {
+                        where: {
+                            status: ReviewStatus.APPROVED
+                        }
+                    }
+                }
+            }
         },
     });
 
+    const totalReviews = await prisma.ratingReview.count({
+        where: {
+            movieId: movie.id,
+            status: ReviewStatus.APPROVED
+        },
+    });
+
+    console.log("Total Reviews", totalReviews);
+
     if (!movie) throw ApiError.notFound("Movie not found");
 
-    return apiResponse(res, 200, true, "Movie fetched successfully", movie);
+    return apiResponse(res, 200, true, "Movie fetched successfully", { ...movie, totalReviews });
 });
 
 // GET UPCOMING MOVIES

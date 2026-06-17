@@ -11,8 +11,8 @@ export const validatePricingRules = (pricingRules) => {
     const seatTypesSeen = new Set();
 
     for (const rule of pricingRules) {
-        if (rule.amount == null || isNaN(Number(rule.amount)) || Number(rule.amount) <= 0) {
-            throw ApiError.badRequest("Each pricing rule must have a valid positive amount");
+        if (rule.amountPkr == null || isNaN(Number(rule.amountPkr)) || Number(rule.amountPkr) <= 0) {
+            throw ApiError.badRequest("Each pricing rule must have a valid positive PKR amount");
         }
         if (!validPricingTypes.includes(rule.type)) {
             throw ApiError.badRequest(`Invalid pricing type: ${rule.type}`);

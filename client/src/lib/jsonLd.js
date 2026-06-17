@@ -100,7 +100,7 @@ export function ShowJsonLd({ show }) {
         "@type": "Offer",
         availability,
         url: `${SITE.url}/shows/${show.id}`,
-        priceCurrency: show.currency ?? "USD",
+        priceCurrency: show.currency ?? "PKR",
         price: show.ticketPriceMin,
         ...(show.ticketPriceMax != null &&
           show.ticketPriceMax !== show.ticketPriceMin && {
@@ -108,7 +108,7 @@ export function ShowJsonLd({ show }) {
             "@type": "PriceSpecification",
             minPrice: show.ticketPriceMin,
             maxPrice: show.ticketPriceMax,
-            priceCurrency: show.currency ?? "USD",
+            priceCurrency: show.currency ?? "PKR",
           },
         }),
       },

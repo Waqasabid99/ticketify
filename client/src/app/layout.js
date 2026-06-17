@@ -5,6 +5,7 @@ import Navbar from "@/layout/Navbar";
 import Footer from "@/layout/Footer";
 import { getGenres } from "@/actions/genre.action";
 import CheckAuth from "@/utils/CheckAuth";
+import { getTheaters } from "@/actions/theater.action";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const { genres } = await getGenres();
+  const { cinemas } = await getTheaters();
   return (
     <html
       suppressHydrationWarning
@@ -33,12 +35,12 @@ export default async function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col justify-between">
-        {/* <CheckAuth> */}
+        <CheckAuth>
         <ToastContainer />
-        <Navbar genres={genres} />
+        <Navbar genres={genres} theaters={cinemas} />
         {children}
         <Footer />
-        {/* </CheckAuth> */}
+        </CheckAuth>
       </body>
     </html>
   );

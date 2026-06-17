@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Calendar, ChevronLeftIcon, ChevronRightIcon, Clock, Play, Ticket } from "lucide-react";
 import { formatDuration, formatYear, StarRating, StatusBadge } from "@/utils/constants";
 import Image from "next/image";
+import { StarsDisplay } from "../ui/MovieReviews";
 
 const Hero = ({ movies = [] }) => {
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
@@ -30,7 +31,7 @@ const Hero = ({ movies = [] }) => {
 
     return (
         <section
-            className="embla relative overflow-hidden min-h-[520px] h-[85vh] md:h-screen"
+            className="embla relative overflow-hidden min-h-130 h-[85vh] md:h-screen"
             aria-label="Featured movies"
         >
             {/* ── Carousel viewport ── */}
@@ -50,7 +51,7 @@ const Hero = ({ movies = [] }) => {
                                     sizes="100vw"
                                     src={movie.bannerUrl}
                                     alt={movie.title}
-                                    className="object-cover object-top"
+                                    className="object-cover object-center"
                                 />
                                 <div className="absolute inset-0 bg-linear-to-b from-black/60 via-transparent to-transparent" />
 
@@ -119,7 +120,7 @@ const Hero = ({ movies = [] }) => {
                                     </div>
 
                                     {/* Star rating */}
-                                    <StarRating rating={4} />
+                                    <StarsDisplay value={movie.ratingReviews?.[0]?.rating || 0} />
 
                                     {/* CTA buttons */}
                                     <div className="flex items-center gap-2 md:gap-3 mt-1 flex-wrap">

@@ -12,8 +12,9 @@ import {
     Users,
     Film,
 } from "lucide-react";
-import { formatDuration, formatYear, StarRating, StatusBadge } from "@/utils/constants";
+import { formatDuration, formatYear, StatusBadge } from "@/utils/constants";
 import MovieCard from "../ui/MovieCard";
+import MovieReviews, { StarsDisplay } from "../ui/MovieReviews";
 
 function SectionHeader({ eyebrow, title, action }) {
     return (
@@ -82,7 +83,7 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                             {genres.map((g) => (
                                 <span
                                     key={g}
-                                    className="text-xs text-(--color-info) font-(--font-semibold) tracking-wider uppercase py-[3px] px-[10px] rounded-full bg-(--color-info-dim) border border-[rgba(55,198,243,0.2)]"
+                                    className="text-xs text-(--color-info) font-(--font-semibold) tracking-wider uppercase py-0.75 px-2.5 rounded-full bg-(--color-info-dim) border border-[rgba(55,198,243,0.2)]"
                                 >
                                     {g}
                                 </span>
@@ -116,7 +117,7 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                                 </span>
                             )}
                             {movie.ageRestriction && (
-                                <span className="py-[2px] px-[8px] border border-(--color-border-strong) rounded-sm text-(--text-xs) font-(--font-semibold) tracking-wide">
+                                <span className="py-0.5 px-2 border border-(--color-border-strong) rounded-sm text-(--text-xs) font-(--font-semibold) tracking-wide">
                                     {movie.ageRestriction}+
                                 </span>
                             )}
@@ -124,14 +125,14 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
 
                         {/* Rating */}
                         <div className="flex items-center gap-(--space-3)">
-                            <StarRating rating={4} />
+                            <StarsDisplay value={movie.ratingReviews?.[0]?.rating || 0} />
                             <span className="text-sm text-(--color-text-muted)">
-                                4.0 / 5.0
+                                {movie.ratingReviews?.[0]?.rating?.toFixed(1) || "—"} / 10.0
                             </span>
                         </div>
 
                         {/* Description — truncated */}
-                        <p className="text-(--color-text-secondary) leading-relaxed max-w-[600px] m-0 line-clamp-3">
+                        <p className="text-(--color-text-secondary) leading-relaxed max-w-150 m-0 line-clamp-3">
                             {movie.description}
                         </p>
 
@@ -169,7 +170,7 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                 {/* ── Stats strip ── */}
                 <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-px bg-(--color-border-subtle) rounded-xl overflow-hidden border border-(--color-border-subtle) -mt-(--space-8) mb-(--space-16) relative z-10">
                     {[
-                        { icon: <Star size={16} />, label: "Rating", value: "4.0 / 5" },
+                        { icon: <Star size={16} />, label: "Rating", value: movie.ratingReviews?.[0]?.rating || "—" },
                         { icon: <Users size={16} />, label: "Cast", value: `${movie.casts?.length ?? 0} Members` },
                         { icon: <Clock size={16} />, label: "Runtime", value: duration ?? "—" },
                         { icon: <Film size={16} />, label: "Status", value: movie.status?.replace(/_/g, " ") },
@@ -246,9 +247,9 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                         className="flex gap-(--space-4) overflow-x-auto pb-(--space-3) scrollbar-thin [scrollbar-color:var(--color-border-default)_transparent]"
                     >
                         {movie.casts?.map((cast) => (
-                            <div key={cast.id} className="shrink-0 w-[150px]">
+                            <div key={cast.id} className="shrink-0 w-37.5">
                                 {/* Poster / avatar */}
-                                <div className="w-[150px] h-[150px] rounded-xl overflow-hidden bg-(--color-surface-raised) border border-(--color-border-subtle) mb-(--space-3) flex items-center justify-center relative">
+                                <div className="w-37.5 h-37.5 rounded-xl overflow-hidden bg-(--color-surface-raised) border border-(--color-border-subtle) mb-(--space-3) flex items-center justify-center relative">
                                     {cast.imageUrl ? (
                                         <Image
                                             src={cast.imageUrl}
@@ -300,13 +301,13 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                                 className="absolute inset-0 flex flex-col items-center justify-center gap-(--space-4) no-underline"
                             >
                                 <div
-                                    className="w-[72px] h-[72px] rounded-full bg-(--color-accent) flex items-center justify-center shadow-(--shadow-glow-accent) transition-transform duration-(--transition-bounce) hover:scale-110"
+                                    className="w-18 h-18 rounded-full bg-(--color-accent) flex items-center justify-center shadow-(--shadow-glow-accent) transition-transform duration-(--transition-bounce) hover:scale-110"
                                 >
                                     <Play
                                         size={28}
                                         fill="var(--color-accent-text)"
                                         color="var(--color-accent-text)"
-                                        className="ml-[4px]"
+                                        className="ml-1"
                                     />
                                 </div>
                                 <span className="font-(family-name:--font-display) text-xl font-(--font-bold) text-(--color-text-primary) tracking-(--tracking-snug)">
@@ -317,6 +318,7 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                     </section>
                 )}
 
+                <MovieReviews movieId={movie?.id} />
                 {/* ── Related movies ── */}
                 {relatedMovies.length > 0 && (
                     <section className="mb-(--space-16)">
@@ -342,13 +344,13 @@ const MovieDetailPage = ({ movie, relatedMovies = [] }) => {
                     />
 
                     {/* Accent top line */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[2px] bg-(--color-accent) rounded-full" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-30 h-0.5 bg-(--color-accent) rounded-full" />
 
                     <span className="eyebrow">Now Available</span>
                     <h2 className="text-(--color-text-primary) m-0 tracking-tight">
                         Ready to watch {movie.title}?
                     </h2>
-                    <p className="text-(--color-text-muted) max-w-[480px] m-0 leading-relaxed">
+                    <p className="text-(--color-text-muted) max-w-120 m-0 leading-relaxed">
                         Secure your seats now. Choose your showtime, pick your seats, and enjoy the show.
                     </p>
                     <div className="flex gap-(--space-3) flex-wrap justify-center mt-(--space-2)">

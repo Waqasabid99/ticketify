@@ -68,7 +68,10 @@ export const createMovie = async (payload) => {
         withCredentials: true,
     });
 
-    revalidateTag("movies", "max", 1);
+    revalidateTag("movies", "max");
+    revalidateTag("genres", "max");
+    revalidateTag("casts", "max");
+    revalidateTag("reviews", "max");
 
     if (!response.success) {
         console.log(response)
@@ -86,7 +89,10 @@ export const updateMovie = async (id, payload) => {
         withCredentials: true
     });
 
-    revalidateTag("movies", "max", 1);
+    revalidateTag("movies", "max");
+    revalidateTag("genres", "max");
+    revalidateTag("casts", "max");
+    revalidateTag("reviews", "max");
 
     if (!response.success) throw new Error(response.message);
     console.log(response.data);
@@ -100,7 +106,10 @@ export const deleteMovie = async (id) => {
         withCredentials: true
     });
 
-    revalidateTag("movies", "max", 1);
+    revalidateTag("movies", "max");
+    revalidateTag("genres", "max");
+    revalidateTag("casts", "max");
+    revalidateTag("reviews", "max");
 
     if (!response.success) throw new Error(response.message);
     console.log(response.data);

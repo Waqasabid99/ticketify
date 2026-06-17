@@ -285,7 +285,7 @@ const Coupons = ({ coupons = [], pagination = {}, couponTypes = ["PERCENTAGE", "
             label: "Value",
             render: (val, row) => (
                 <span className="text-sm font-semibold text-(--color-text-primary)">
-                    {row.type === "PERCENTAGE" ? `${val}%` : `$${Number(val).toFixed(2)}`}
+                    {row.type === "PERCENTAGE" ? `${val}%` : `Rs.${Number(val).toFixed(2)}`}
                 </span>
             ),
         },
@@ -329,8 +329,8 @@ const Coupons = ({ coupons = [], pagination = {}, couponTypes = ["PERCENTAGE", "
                 return (
                     <span
                         className={`text-xs ${expired
-                                ? "text-(--color-error) font-semibold"
-                                : "text-(--color-text-muted)"
+                            ? "text-(--color-error) font-semibold"
+                            : "text-(--color-text-muted)"
                             }`}
                     >
                         {new Date(val).toLocaleDateString(undefined, {
@@ -373,8 +373,8 @@ const Coupons = ({ coupons = [], pagination = {}, couponTypes = ["PERCENTAGE", "
                 onClick={() => handleToggleStatus(item)}
                 disabled={activeStatusCoupon?.id === item.id && isStatusing}
                 className={`p-1.5 rounded transition-colors disabled:opacity-50 ${item.isActive
-                        ? "text-(--color-success) hover:bg-(--color-green-dim)"
-                        : "text-(--color-text-muted) hover:bg-(--color-bg-surface)"
+                    ? "text-(--color-success) hover:bg-(--color-green-dim)"
+                    : "text-(--color-text-muted) hover:bg-(--color-bg-surface)"
                     }`}
             >
                 {item.isActive ? (
@@ -416,7 +416,7 @@ const Coupons = ({ coupons = [], pagination = {}, couponTypes = ["PERCENTAGE", "
                     </select>
                 </FormField>
 
-                <FormField label={form.type === "PERCENTAGE" ? "Discount (%)" : "Discount ($)"}>
+                <FormField label={form.type === "PERCENTAGE" ? "Discount (%)" : "Discount (PKR)"}>
                     <input
                         type="number"
                         min="0"
@@ -519,8 +519,8 @@ const Coupons = ({ coupons = [], pagination = {}, couponTypes = ["PERCENTAGE", "
                                     setAddForm((p) => ({ ...p, isActive: !p.isActive }))
                                 }
                                 className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${addForm.isActive
-                                        ? "bg-(--color-success)"
-                                        : "bg-(--color-border)"
+                                    ? "bg-(--color-success)"
+                                    : "bg-(--color-border)"
                                     }`}
                             >
                                 <span

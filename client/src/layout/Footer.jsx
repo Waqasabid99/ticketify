@@ -10,7 +10,7 @@ const ListComponent = ({ title, links }) => {
             {links?.map((link) => (
                 <Link
                     className="text-(--color-text-secondary) hover:text-(--color-primary)"
-                    key={link.href}
+                    key={link.label}
                     href={link.href}
                 >
                     {link.label}
@@ -42,7 +42,7 @@ const Footer = () => {
                             <Link
                                 aria-label={link.label}
                                 className="text-(--color-text-secondary) hover:text-(--color-primary)"
-                                key={link.href}
+                                key={link.label}
                                 href={link.href}
                                 target="_blank"
                                 rel="noopener noreferrer"

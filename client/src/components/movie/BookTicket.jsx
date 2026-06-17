@@ -175,7 +175,7 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
         setLoadingSeats(true);
         try {
             const res = await fetch(
-                `http://localhost:8000/api/v1/seats/${show.screen?.screenId ?? show.screenId}/seats?limit=200`
+                `${process.env.API_BASE_URL}/seats/${show.screen?.screenId ?? show.screenId}/seats?limit=200`
             );
             const json = await res.json();
             setSeats(json.data?.seats ?? []);
@@ -604,7 +604,7 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-(--color-text-primary) font-semibold font-(family-name:--font-display)">
-                                                        ${getSeatPrice(seat)}
+                                                        Rs.{getSeatPrice(seat)}
                                                     </span>
                                                     <button
                                                         onClick={() => toggleSeat(seat)}
@@ -625,15 +625,15 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                                     <div className="flex flex-col gap-2 text-sm">
                                         <div className="flex justify-between text-(--color-text-muted)">
                                             <span>{selectedSeats.length} ticket{selectedSeats.length > 1 ? "s" : ""}</span>
-                                            <span>${totalPrice}</span>
+                                            <span>Rs.{totalPrice}</span>
                                         </div>
                                         <div className="flex justify-between text-(--color-text-muted)">
                                             <span>Convenience fee</span>
-                                            <span>$0.00</span>
+                                            <span>Rs.0.00</span>
                                         </div>
                                         <div className="flex justify-between text-(--color-text-primary) font-bold font-(family-name:--font-display) text-lg mt-1">
                                             <span>Total</span>
-                                            <span className="text-(--color-accent)">${totalPrice}</span>
+                                            <span className="text-(--color-accent)">Rs.{totalPrice}</span>
                                         </div>
                                     </div>
                                 </>
@@ -667,7 +667,7 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
                         >
                             {isBooking ? <Loader2 size={18} /> : <Ticket size={18} />}
                             {selectedSeats.length > 0
-                                ? isBooking ? "Booking..." : `Proceed to Payment · $${totalPrice}`
+                                ? isBooking ? "Booking..." : `Proceed to Payment · Rs.${totalPrice}`
                                 : "Select Seats to Continue"}
                         </button>
 

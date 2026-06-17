@@ -47,7 +47,9 @@ export const createTheater = async (theaterData) => {
         throw new Error(response.message)
     }
 
-    revalidateTag("theaters", "max", 1)
+    revalidateTag("theaters", "max");
+    revalidateTag("movies", "max");
+    revalidateTag("screens", "max");
 
     return response.data
 };
@@ -65,7 +67,9 @@ export const updateTheater = async (id, theaterData) => {
         throw new Error(response.message)
     }
 
-    revalidateTag("theaters", "max", 1)
+    revalidateTag("theaters", "max");
+    revalidateTag("movies", "max");
+    revalidateTag("screens", "max");
 
     return response.data
 };
@@ -82,7 +86,9 @@ export const deleteTheater = async (id) => {
         throw new Error(response.message)
     }
 
-    revalidateTag("theaters", "max", 1)
+    revalidateTag("theaters", "max");
+    revalidateTag("movies", "max");
+    revalidateTag("screens", "max");
 
     return response.data
 };

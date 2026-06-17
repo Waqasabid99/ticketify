@@ -23,6 +23,7 @@ import { paymentRouter, webhookRouter } from "./src/routes/payment.router.js";
 import analyticsRouter from "./src/routes/analytics.router.js";
 import enumRouter from "./src/routes/enum.router.js";
 import reviewRouter from "./src/routes/review.router.js";
+import contactRouter from "./src/routes/contact.router.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -91,6 +92,7 @@ app.use(`${API_VERSION}/payments`, paymentRouter);
 app.use(`${API_VERSION}/tickets`, ticketRouter);
 app.use(`${API_VERSION}/analytics`, analyticsRouter);
 app.use(`${API_VERSION}/enums`, enumRouter);
+app.use(`${API_VERSION}/contact`, contactRouter);
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

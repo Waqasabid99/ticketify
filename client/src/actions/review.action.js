@@ -19,12 +19,12 @@ export const getReviews = async (params) => {
     return response.data;
 };
 
-export const getMovieReviews = async (movieId) => {
+export const getMovieReviews = async (movieId, params) => {
     const response = await apiRequest({
         url: `/reviews/movies/${movieId}/reviews`,
         method: "GET",
+        params: params,
         withCredentials: true,
-        cache: "force-store",
         tags: ["reviews"]
     });
 
@@ -48,6 +48,7 @@ export const createReview = async (payload) => {
     };
 
     revalidateTag("reviews", "max");
+    revalidateTag("movies", "max");
 
     return true;
 };
@@ -95,7 +96,7 @@ export const updateOwnReview = async (movieId, payload) => {
     };
 
     revalidateTag("reviews", "max");
-
+    revalidateTag("movies", "max");
     return true;
 };
 
@@ -111,6 +112,7 @@ export const deleteOwnReview = async (movieId) => {
     };
 
     revalidateTag("reviews", "max");
+    revalidateTag("movies", "max");
 
     return true;
 };
@@ -128,6 +130,7 @@ export const deleteReviewByAdmin = async (reviewId) => {
     };
 
     revalidateTag("reviews", "max");
+    revalidateTag("movies", "max");
 
     return true;
 };
@@ -147,6 +150,6 @@ export const moderateReview = async (reviewId, payload) => {
     };
 
     revalidateTag("reviews", "max");
-
+    revalidateTag("movies", "max");
     return true;
 };

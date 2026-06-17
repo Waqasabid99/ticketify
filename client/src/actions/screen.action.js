@@ -47,7 +47,8 @@ export const createScreen = async (screenData) => {
         throw new Error(response.message)
     }
 
-    revalidateTag("screens", "max", 1)
+    revalidateTag("screens", "max");
+    revalidateTag("movies", "max");
 
     return response.data
 };
@@ -65,7 +66,8 @@ export const updateScreen = async (id, screenData) => {
         throw new Error(response.message)
     }
 
-    revalidateTag("screens", "max", 1)
+    revalidateTag("screens", "max");
+    revalidateTag("movies", "max");
 
     return response.data
 };
@@ -82,7 +84,8 @@ export const deleteScreen = async (id) => {
         throw new Error(response.message)
     }
 
-    revalidateTag("screens", "max", 1)
+    revalidateTag("screens", "max");
+    revalidateTag("movies", "max");
 
     return response.data
 };

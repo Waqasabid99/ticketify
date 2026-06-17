@@ -12,11 +12,9 @@ export const getMyTickets = async (params = {}) => {
         tags: ["tickets"],
     });
 
-
     if (!response.success) {
         return [];
     }
-
 
     return response.data;
 };
@@ -30,11 +28,9 @@ export const getTicketById = async (ticketId) => {
         tags: ["tickets"],
     });
 
-
     if (!response.success) {
         return null;
     }
-
 
     return response.data;
 };
@@ -48,11 +44,9 @@ export const getAllTickets = async (params = {}) => {
         cache: "no-store"
     });
 
-
     if (!response.success) {
         return [];
     }
-
 
     return response.data;
 };
@@ -74,9 +68,7 @@ export const verifyTicket = async (token) => {
         };
     }
 
-
     revalidateTag("tickets", "max");
-
 
     return {
         success: true,
@@ -96,9 +88,7 @@ export const cancelTicket = async (ticketId) => {
         return false;
     }
 
-
     revalidateTag("tickets", "max");
-
 
     return true;
 };

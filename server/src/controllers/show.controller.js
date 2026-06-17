@@ -1,5 +1,7 @@
+import currency from "currency.js";
 import prisma from "../config/prisma.js";
 import { MovieStatus, SeatStatus, ShowSeatStatus, ShowStatus } from "../generated/prisma/enums.ts";
+import { getUsdToPkrRate, pkrToUsd } from "../services/currency.js";
 import { apiResponse, asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/error.js";
 import { validatePricingRules } from "../utils/validatePricing.js";
@@ -61,6 +63,9 @@ export const createShow = asyncHandler(async (req, res) => {
 
     if (!seats.length) throw ApiError.notFound("No available seats found for this screen");
 
+    const rate = await getUsdToPkrRate();
+    if (!rate) throw ApiError.internalServerError("Failed to get exchange rate");
+
     const show = await prisma.$transaction(async (tx) => {
         const newShow = await tx.show.create({
             data: {
@@ -87,7 +92,9 @@ export const createShow = asyncHandler(async (req, res) => {
             data: pricingRules.map((rule) => ({
                 showId: newShow.id,
                 seatType: rule.seatType ?? null,
-                amount: Number(rule.amount),
+                amountPKR: currency(rule.amountPkr, { precision: 2 }).value,
+                amount: pkrToUsd(rule.amountPkr, rate),
+                exchangeRate: rate,
                 type: rule.type,
             })),
         });
@@ -397,6 +404,9 @@ export const updateShow = asyncHandler(async (req, res) => {
         validatePricingRules(pricingRules);
     }
 
+    const rate = (pricingRules && pricingRules.length > 0) ? await getUsdToPkrRate() : null;
+    if (!rate) throw ApiError.badRequest("Failed to get exchange rate");
+
     const show = await prisma.$transaction(async (tx) => {
         const updatedShow = await tx.show.update({
             where: { id: showId },
@@ -413,24 +423,19 @@ export const updateShow = asyncHandler(async (req, res) => {
                         },
                     });
 
+                    const data = {
+                        amountPKR: currency(rule.amountPkr, { precision: 2 }).value,
+                        amount: pkrToUsd(rule.amountPkr, rate),
+                        exchangeRate: rate,
+                        type: rule.type,
+                    };
+
                     if (existing) {
-                        await tx.pricingRule.update({
-                            where: { id: existing.id },
-                            data: {
-                                amount: Number(rule.amount),
-                                type: rule.type,
-                            },
-                        });
+                        await tx.pricingRule.update({ where: { id: existing.id }, data });
                     } else {
-                        await tx.pricingRule.create({
-                            data: {
-                                showId,
-                                seatType: rule.seatType ?? null,
-                                amount: Number(rule.amount),
-                                type: rule.type,
-                            },
-                        });
+                        await tx.pricingRule.create({ data: { showId, seatType: rule.seatType ?? null, ...data } });
                     }
+
                 })
             );
         }

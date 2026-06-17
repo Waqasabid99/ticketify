@@ -194,7 +194,7 @@ const Table = ({
         return buttons;
     }, [computedTotalPages, activePage]);
 
-    const showActions = !!onEdit || !!onDelete || !!onView || !!EditModal || !!DeleteModal;
+    const showActions = !!onEdit || !!onDelete || !!onView || !!EditModal || !!DeleteModal || !!extraActions;
 
     // Shared meta footer text
     const metaText = isServerPaginated && pagination.total !== undefined

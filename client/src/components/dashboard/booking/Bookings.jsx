@@ -57,7 +57,7 @@ const Badge = ({ value, styleMap }) => (
 
 const CurrencyDisplay = ({ amount }) => (
     <span className="text-sm font-semibold tabular-nums text-(--color-text-primary)">
-        ${Number(amount ?? 0).toFixed(2)}
+        Rs.{Number(amount ?? 0).toFixed(2)}
     </span>
 );
 
@@ -182,7 +182,7 @@ const BookingDetailModal = ({ booking, onClose, isAdmin }) => {
                                             </span>
                                         )}
                                     </span>
-                                    <span>−${Number(booking.discountAmount).toFixed(2)}</span>
+                                    <span>−Rs.{Number(booking.discountAmount).toFixed(2)}</span>
                                 </div>
                             )}
                             <div className="flex justify-between font-semibold text-(--color-text-primary) border-t border-(--color-border) pt-1.5">
@@ -317,7 +317,7 @@ const ActionModal = ({ booking, action, onClose, onConfirm, isLoading }) => {
 const Bookings = ({ bookings = [], pagination = {}, adminRoles }) => {
     const router = useRouter();
     const { user } = useAuthStore();
-    const isAdmin = adminRoles?.includes(user?.role);
+    const isAdmin = adminRoles?.includes(user?.role.toUpperCase());
 
     // ── Modal states ───────────────────────────────────────────
     const [activeDetailBooking, setActiveDetailBooking] = useState(null);
@@ -624,6 +624,7 @@ const Bookings = ({ bookings = [], pagination = {}, adminRoles }) => {
         </>
     );
 
+    console.log(isAdmin, adminRoles, user?.role);
     // ── Render ─────────────────────────────────────────────────
 
     return (

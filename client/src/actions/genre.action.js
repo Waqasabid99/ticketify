@@ -37,7 +37,8 @@ export const createGenre = async (genre) => {
         throw new Error(response.message);
     };
 
-    revalidateTag("genres", "max", 1);
+    revalidateTag("genres", "max");
+    revalidateTag("movies", "max");
 
     return response;
 };
@@ -57,7 +58,8 @@ export const updateGenre = async (id, genre) => {
         throw new Error(response.message);
     };
 
-    revalidateTag("genres", "max", 1);
+    revalidateTag("genres", "max");
+    revalidateTag("movies", "max");
 
     return response;
 };
@@ -76,7 +78,8 @@ export const deleteGenre = async (id) => {
         throw new Error(response.message);
     };
 
-    revalidateTag("genres", "max", 1);
+    revalidateTag("genres", "max");
+    revalidateTag("movies", "max");
 
     return response;
 };

@@ -41,21 +41,21 @@ const DesktopDropdown = ({ link }) => {
                 onMouseEnter={open}
                 onMouseLeave={close}
                 className={`
-                    absolute left-0 top-[calc(100%+var(--space-3))] min-w-[180px]
+                    absolute left-0 top-[calc(100%+var(--space-3))] min-w-45
                     bg-(--color-surface-raised) border border-(--color-border-strong)
                     rounded-md shadow-(--shadow-lg) py-(--space-1) z-(--z-dropdown)
                     transition-[opacity,transform] duration-200 ease-[ease]
                     origin-top
                     ${isOpen
-                        ? `${link?.children?.length > 5 ? "grid grid-cols-2" : "grid grid-cols-1"} opacity-100 scale-y-100 pointer-events-auto`
+                        ? `grid grid-flow-col auto-cols-max grid-rows-5 gap-x-4 opacity-100 scale-y-100 pointer-events-auto`
                         : "opacity-0 scale-y-95 pointer-events-none"
-                    }
+                        }
                 `}
             >
                 {link.children?.length > 0 ? (
                     link.children.map((child) => (
                         <Link
-                            key={child.href}
+                            key={child.label}
                             href={child.href}
                             onClick={() => setIsOpen(false)}
                             className="block px-(--space-4) py-(--space-2) text-[length:var(--text-sm)] text-(--color-text-primary) no-underline transition-colors duration-120 hover:bg-(--color-accent-dim) hover:text-(--color-accent) whitespace-nowrap"
@@ -122,7 +122,7 @@ const MobileAccordionLink = ({ link, onClose }) => {
                 {link.children?.length > 0 ? (
                     link.children.map((child) => (
                         <Link
-                            key={child.href}
+                            key={child.label}
                             href={child.href}
                             onClick={onClose}
                             className="
@@ -172,7 +172,7 @@ const Navbar = ({ genres = [], theaters = [] }) => {
             return {
                 ...item,
                 children: theaters.map((theater) => ({
-                    href: `/theaters/${theater.slug}`,
+                    href: `/movies?cinemaSlug=${theater.slug}`,
                     label: theater.name,
                 })),
             };
@@ -263,10 +263,10 @@ const Navbar = ({ genres = [], theaters = [] }) => {
                     <nav className="flex items-center gap-6 lg:gap-8">
                         {navLinks?.map((link) =>
                             link.children !== undefined ? (
-                                <DesktopDropdown key={link.href} link={link} />
+                                <DesktopDropdown key={link.label} link={link} />
                             ) : (
                                 <Link
-                                    key={link.href}
+                                    key={link.label}
                                     href={link.href}
                                     className="text-[length:var(--text-md)] font-semibold text-(--color-text-primary) no-underline transition-colors duration-120 hover:text-(--color-accent)"
                                 >
@@ -429,7 +429,7 @@ const Navbar = ({ genres = [], theaters = [] }) => {
                     <nav className="py-(--space-4) grow">
                         {navLinks.map((link) => (
                             <MobileAccordionLink
-                                key={link.href}
+                                key={link.label}
                                 link={link}
                                 onClose={closeMobileMenu}
                             />

@@ -14,19 +14,17 @@ export const NAV_LINKS = [
     { href: "/", label: "Home" },
     { href: "/movies", label: "Movies" },
     { href: "#", label: "Genres", children: [] },
-    { href: "/theaters", label: "Theaters", children: [] }
+    { href: "#", label: "Theaters", children: [] }
 ];
 
 export const LEGAL_LINKS = [
     { href: "/terms", label: "Terms of Use" },
-    { href: "/privacy", label: "Privacy Policy" },
-    { href: "/cookie", label: "Cookie Policy" }
+    { href: "/privacy-policy", label: "Privacy Policy" },
+    { href: "/cookie-policy", label: "Cookie Policy" }
 ];
 
 export const CONTACT_LINKS = [
-    { href: "/contact", label: "Contact Us" },
-    { href: "/help", label: "Help" },
-    { href: "/support", label: "Support" }
+    { href: "/contact", label: "Contact Us" }
 ];
 
 export const SOCIAL_LINKS = [

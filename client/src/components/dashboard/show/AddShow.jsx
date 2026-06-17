@@ -32,7 +32,7 @@ const fieldBase =
 const Section = ({ icon: Icon, title, children }) => (
     <div className="card rounded-xl p-6 space-y-5">
         <div className="flex items-center gap-2.5 pb-4 border-b border-(--color-border-subtle)">
-            <div className="w-8 h-8 rounded-lg bg-(--color-purple-dim) flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-(--color-purple-dim) flex items-center justify-center shrink-0">
                 <Icon className="w-4 h-4 text-(--color-accent)" />
             </div>
             <h3 className="font-display text-base font-semibold text-(--color-text-primary) tracking-tight">
@@ -224,7 +224,7 @@ const AddShow = ({ seatTypes = [], priceTypes = DEFAULT_PRICE_TYPES }) => {
                 cleaningMinutes: Number(form.cleaningMinutes) || 15,
                 pricingRules: pricingRules.map((r) => ({
                     seatType: r.seatType || null,
-                    amount: Number(r.amount),
+                    amountPkr: Number(r.amount),
                     type: r.type,
                 })),
             });

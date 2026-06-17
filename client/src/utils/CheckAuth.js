@@ -4,13 +4,11 @@ import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react";
 
 const CheckAuth = ({ children }) => {
-    const { verifyUser, isAuthenticated } = useAuthStore();
+    const { verifyUser } = useAuthStore();
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            verifyUser()
-        }
-    }, [isAuthenticated])
+        verifyUser()
+    }, [verifyUser]);
 
     return (
         <>{children}</>

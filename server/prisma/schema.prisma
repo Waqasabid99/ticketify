@@ -421,6 +421,16 @@ model Show {
   @@index([screenId, startTime])
 }
 
+model ExchangeRate {
+  id        String   @id @default(uuid())
+  base      String // "USD"
+  target    String // "PKR"
+  rate      Decimal  @db.Decimal(10, 4) // 1 USD = `rate` PKR
+  fetchedAt DateTime @default(now())
+
+  @@index([base, target, fetchedAt])
+}
+
 model PricingRule {
   id String @id @default(uuid())
 
@@ -428,7 +438,9 @@ model PricingRule {
 
   seatType SeatType?
 
-  amount Decimal @db.Decimal(10, 2)
+  amount       Decimal @default(0) @db.Decimal(10, 2)
+  amountPKR    Decimal @default(0) @db.Decimal(10, 2)
+  exchangeRate Decimal @default(1) @db.Decimal(10, 4)
 
   type PricingType
 
@@ -611,6 +623,19 @@ model Coupon {
   updatedAt    DateTime      @updatedAt
   deletedAt    DateTime?
   couponUsages CouponUsage[]
+}
+
+model Contact {
+  id String @id @default(uuid())
+
+  name    String
+  email   String
+  subject String
+  message String
+
+  emailSent Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
 
 model CouponUsage {
