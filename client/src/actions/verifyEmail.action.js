@@ -1,6 +1,6 @@
 export const verifyEmail = async (token) => {
     try {
-        const res = await fetch(`${process.env.API_BASE_URL}/email/verify`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/email/verify`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

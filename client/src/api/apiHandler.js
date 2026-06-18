@@ -12,7 +12,7 @@ export const apiRequest = async ({
     headers = {},
 }) => {
 
-    const baseUrl = process.env.API_BASE_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const queryString = new URLSearchParams(
         Object.entries(params).filter(

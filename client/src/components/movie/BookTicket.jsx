@@ -175,7 +175,7 @@ const BookingPage = ({ movie, shows = [], initialShowId = null }) => {
         setLoadingSeats(true);
         try {
             const res = await fetch(
-                `${process.env.API_BASE_URL}/seats/${show.screen?.screenId ?? show.screenId}/seats?limit=200`
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/seats/${show.screen?.screenId ?? show.screenId}/seats?limit=200`
             );
             const json = await res.json();
             setSeats(json.data?.seats ?? []);
