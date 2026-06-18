@@ -41,9 +41,17 @@ export const apiRequest = async ({
 
         if (withCredentials) {
             const cookieStore = await cookies();
+            const allCookies = cookieStore.getAll();
 
-            requestHeaders.Cookie =
-                cookieStore.toString();
+            // Build a proper Cookie header string
+            const cookieHeader = allCookies
+                .map(c => `${c.name}=${c.value}`)
+                .join("; ");
+
+            console.log("Attaching cookies to request:", cookieHeader);    
+            if (cookieHeader) {
+                requestHeaders.Cookie = cookieHeader;
+            }
         }
 
 
