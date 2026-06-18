@@ -1,4 +1,5 @@
 import { api } from "@/api/api";
+import { authApi } from "@/api/authApi";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "react-toastify";
@@ -25,12 +26,14 @@ export const useAuthStore = create(
                 });
             },
 
+            forceLogout: () => {
+                get()._clearAuth();
+            },
+
             register: async (formData) => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await api.post("/auth/register", formData, {
-                        headers: { "Content-Type": "application/json" },
-                    });
+                    const { data } = await authApi.post("/register", formData);
                     set({
                         user: data?.data?.user,
                         role: data?.data?.user?.role,
@@ -53,9 +56,7 @@ export const useAuthStore = create(
             login: async (formData) => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await api.post("/auth/login", formData, {
-                        headers: { "Content-Type": "application/json" },
-                    });
+                    const { data } = await authApi.post("/login", formData);
                     set({
                         user: data?.data?.user,
                         role: data?.data?.user?.role,
@@ -78,7 +79,7 @@ export const useAuthStore = create(
             logout: async () => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await api.post("/auth/logout");
+                    const { data } = await authApi.post("/logout");
                     set({
                         user: null,
                         permissions: [],
@@ -105,7 +106,7 @@ export const useAuthStore = create(
             verifyUser: async () => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await api.post("/auth/verify");
+                    const { data } = await authApi.post("/verify");
                     set({
                         user: data?.data?.user,
                         role: data?.data?.user?.role,
@@ -129,7 +130,7 @@ export const useAuthStore = create(
             // Manually trigger a token refresh
             refreshToken: async () => {
                 try {
-                    await api.post("/auth/refresh-token");
+                    await authApi.post("/refresh-token");
                     return true;
                 } catch (error) {
                     get()._clearAuth();

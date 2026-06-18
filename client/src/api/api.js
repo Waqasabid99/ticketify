@@ -1,14 +1,11 @@
 import axios from "axios";
+import { authApi } from "@/api/authApi";
+import { useAuthStore } from "@/store/authStore";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1"
 export const api = axios.create({
     baseURL: API_URL,
     withCredentials: true,
-});
-
-const refreshApi = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
 });
 
 // Refresh lock (prevents multiple refresh calls)
@@ -58,7 +55,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await refreshApi.post("/auth/refresh-token");
+        await authApi.post("/refresh-token");
         processQueue();
         return api(originalRequest);
       } catch (err) {
