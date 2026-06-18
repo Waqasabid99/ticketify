@@ -1,6 +1,11 @@
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1"
+
+export const authApi = axios.create({
+  baseURL: "", // or process.env.NEXT_PUBLIC_APP_URL if needed
+  withCredentials: true, // send cookies automatically
+});
 export const api = axios.create({
     baseURL: API_URL,
     withCredentials: true,
