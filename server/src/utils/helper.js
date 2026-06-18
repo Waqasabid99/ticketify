@@ -108,7 +108,7 @@ export const COOKIE_OPTIONS = {
     secure: process.env.NODE_ENV === "production",
     sameSite:
         process.env.NODE_ENV === "production"
-            ? "strict"
+            ? "none"
             : "lax",
 };
 
