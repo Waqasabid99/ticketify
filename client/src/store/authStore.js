@@ -1,4 +1,4 @@
-import { api, authApi } from "@/api/api";
+import { api } from "@/api/api";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "react-toastify";
@@ -53,7 +53,7 @@ export const useAuthStore = create(
             login: async (formData) => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await authApi.post("/api/auth/login", formData, {
+                    const { data } = await api.post("/auth/login", formData, {
                         headers: { "Content-Type": "application/json" },
                     });
                     set({
@@ -78,7 +78,7 @@ export const useAuthStore = create(
             logout: async () => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await authApi.post("/api/auth/logout");
+                    const { data } = await api.post("/auth/logout");
                     set({
                         user: null,
                         permissions: [],
@@ -105,7 +105,7 @@ export const useAuthStore = create(
             verifyUser: async () => {
                 try {
                     set({ isLoading: true, error: null });
-                    const { data } = await authApi.post("/api/auth/verify");
+                    const { data } = await api.post("/auth/verify");
                     set({
                         user: data?.data?.user,
                         role: data?.data?.user?.role,
@@ -129,7 +129,7 @@ export const useAuthStore = create(
             // Manually trigger a token refresh
             refreshToken: async () => {
                 try {
-                    await api.post("/api/auth/refresh-token");
+                    await api.post("/auth/refresh-token");
                     return true;
                 } catch (error) {
                     get()._clearAuth();
